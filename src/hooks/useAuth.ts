@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/authStore';
 
 /** Хук проверки авторизации при загрузке */
 export function useAuthCheck() {
-  const { setAuth, logout, setLoading } = useAuthStore();
+  const { setAuth, setTokens, logout, setLoading } = useAuthStore();
 
   return useQuery({
     queryKey: ['auth', 'me'],
@@ -16,9 +16,15 @@ export function useAuthCheck() {
         return null;
       }
       try {
-        const data = await authApi.refresh(refreshToken);
-        setAuth(data.user, data.tokens);
-        return data.user;
+        // 1. Обновляем токены
+        const tokens = await authApi.refresh(refreshToken);
+        setTokens(tokens);
+
+        // 2. Получаем данные пользователя
+        const userData = await authApi.me();
+        const user = userData.user || userData;
+        setAuth(user, tokens);
+        return user;
       } catch {
         logout();
         return null;
