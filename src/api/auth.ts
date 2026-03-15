@@ -1,13 +1,14 @@
 import apiClient from './client';
-import type { AuthResponse } from '@/types';
+import type { AuthResponse, AuthTokens } from '@/types';
 
 // Backend возвращает { success: true, data: { ... } } — достаём .data.data
 export const authApi = {
   login: (email: string, password: string) =>
     apiClient.post('/auth/login', { email, password }).then((r) => r.data.data as AuthResponse),
 
+  // refresh возвращает только токены (без user)
   refresh: (refreshToken: string) =>
-    apiClient.post('/auth/refresh', { refreshToken }).then((r) => r.data.data as AuthResponse),
+    apiClient.post('/auth/refresh', { refreshToken }).then((r) => r.data.data as AuthTokens),
 
   forgotPassword: (email: string) =>
     apiClient.post('/auth/forgot-password', { email }).then((r) => r.data),
