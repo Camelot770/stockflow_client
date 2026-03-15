@@ -14,8 +14,10 @@ export default function SettingsPage() {
   const updateOrg = useUpdateCompanySettings();
 
   const { register, handleSubmit } = useForm({
-    values: org ? { name: org.name, inn: org.inn || '', kpp: org.kpp || '', legalAddress: org.legalAddress || '', phone: org.phone || '', email: org.email || '' } : undefined,
+    values: org ? { name: org.name || '', inn: org.inn || '', kpp: org.kpp || '', legalAddress: org.legalAddress || '', phone: org.phone || '', email: org.email || '' } : undefined,
   });
+
+  if (isLoading) return <div className="space-y-6 max-w-2xl"><div className="h-8 w-48 bg-muted animate-pulse rounded mb-4" /><div className="h-64 bg-muted animate-pulse rounded" /></div>;
 
   const onSubmit = (data: Record<string, string>) => {
     updateOrg.mutate(data, { onSuccess: () => toast.success('Настройки сохранены') });

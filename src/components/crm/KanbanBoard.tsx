@@ -24,9 +24,9 @@ export function KanbanBoard({ stages, deals, onDealMove, onDealClick }: KanbanBo
     const overId = over.id as string;
 
     // Если перетащили на колонку (стадию)
-    const targetStage = stages.find((s) => s.id === overId);
+    const targetStage = safeStages.find((s) => s.id === overId);
     if (targetStage) {
-      const deal = deals.find((d) => d.id === dealId);
+      const deal = safeDeals.find((d) => d.id === dealId);
       if (deal && deal.stageId !== targetStage.id) {
         onDealMove(dealId, targetStage.id);
       }
@@ -34,16 +34,18 @@ export function KanbanBoard({ stages, deals, onDealMove, onDealClick }: KanbanBo
     }
 
     // Если перетащили на другую сделку — определяем колонку
-    const targetDeal = deals.find((d) => d.id === overId);
+    const targetDeal = safeDeals.find((d) => d.id === overId);
     if (targetDeal) {
-      const deal = deals.find((d) => d.id === dealId);
+      const deal = safeDeals.find((d) => d.id === dealId);
       if (deal && deal.stageId !== targetDeal.stageId) {
         onDealMove(dealId, targetDeal.stageId);
       }
     }
   };
 
-  const sortedStages = [...stages].sort((a, b) => a.order - b.order);
+  const safeStages = stages || [];
+  const safeDeals = deals || [];
+  const sortedStages = [...safeStages].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
@@ -53,7 +55,7 @@ export function KanbanBoard({ stages, deals, onDealMove, onDealClick }: KanbanBo
             <KanbanColumn
               key={stage.id}
               stage={stage}
-              deals={deals.filter((d) => d.stageId === stage.id)}
+              deals={safeDeals.filter((d) => d.stageId === stage.id)}
               onDealClick={onDealClick}
             />
           ))}

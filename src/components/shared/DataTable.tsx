@@ -36,7 +36,7 @@ interface DataTableProps<TData, TValue> {
 
 export function DataTable<TData, TValue>({
   columns,
-  data,
+  data: rawData,
   searchPlaceholder = 'Поиск...',
   searchColumn,
   enableRowSelection = false,
@@ -50,6 +50,9 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = React.useState('');
+
+  // Ensure data is always an array to prevent crashes
+  const data = Array.isArray(rawData) ? rawData : [];
 
   const selectionColumn: ColumnDef<TData, TValue> = {
     id: 'select',

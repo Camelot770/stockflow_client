@@ -26,14 +26,16 @@ const activityIcons: Record<string, React.ReactNode> = {
 };
 
 export function DealTimeline({ activities, comments }: DealTimelineProps) {
+  const safeActivities = activities || [];
+  const safeComments = comments || [];
   const items: TimelineItem[] = [
-    ...activities.map((a) => ({
+    ...safeActivities.map((a) => ({
       id: a.id,
       type: 'activity' as const,
       date: a.createdAt,
       data: a,
     })),
-    ...comments.map((c) => ({
+    ...safeComments.map((c) => ({
       id: c.id,
       type: 'comment' as const,
       date: c.createdAt,
@@ -72,8 +74,8 @@ export function DealTimeline({ activities, comments }: DealTimelineProps) {
                   {(item.data as Activity).user && (
                     <Avatar className="h-5 w-5">
                       <AvatarFallback className="text-[8px]">
-                        {(item.data as Activity).user!.firstName[0]}
-                        {(item.data as Activity).user!.lastName[0]}
+                        {((item.data as Activity).user!.firstName || '?')[0]}
+                        {((item.data as Activity).user!.lastName || '?')[0]}
                       </AvatarFallback>
                     </Avatar>
                   )}

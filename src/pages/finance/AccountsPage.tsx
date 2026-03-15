@@ -13,7 +13,8 @@ import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function AccountsPage() {
-  const { data: accounts = [], isLoading } = useFinanceAccounts();
+  const { data: rawAccounts, isLoading } = useFinanceAccounts();
+  const accounts = Array.isArray(rawAccounts) ? rawAccounts : Array.isArray((rawAccounts as any)?.data) ? (rawAccounts as any).data : [];
   const createAccount = useCreateFinanceAccount();
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ name: '', type: 'bank' as string, currency: 'RUB' });
@@ -43,7 +44,7 @@ export default function AccountsPage() {
                   <div><p className="font-medium">{acc.name}</p><p className="text-xs text-muted-foreground">{acc.type === 'bank' ? 'Банковский' : acc.type === 'cash' ? 'Наличные' : 'Карта'}</p></div>
                   <Badge variant={acc.isActive ? 'success' : 'secondary'} className="ml-auto">{acc.isActive ? 'Активен' : 'Неактивен'}</Badge>
                 </div>
-                <p className="text-2xl font-bold">{formatCurrency(acc.balance)}</p>
+                <p className="text-2xl font-bold">{formatCurrency(acc.balance ?? 0)}</p>
               </CardContent>
             </Card>
           ))}

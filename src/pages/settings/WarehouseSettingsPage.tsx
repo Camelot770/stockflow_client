@@ -13,7 +13,8 @@ import { useWarehouses, useCreateWarehouse } from '@/hooks/useWarehouse';
 import { toast } from 'sonner';
 
 export default function WarehouseSettingsPage() {
-  const { data: warehouses = [] } = useWarehouses();
+  const { data: rawWarehouses } = useWarehouses();
+  const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
   const createWarehouse = useCreateWarehouse();
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ name: '', address: '', type: 'warehouse' as string });

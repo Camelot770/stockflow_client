@@ -18,7 +18,7 @@ const columns: ColumnDef<Return, unknown>[] = [
   { accessorKey: 'salesOrder.number', header: '№ заказа', cell: ({ row }) => row.original.salesOrder?.number || '-' },
   { accessorKey: 'status', header: 'Статус', cell: ({ row }) => { const s = statusMap[row.original.status]; return <Badge variant={s?.variant}>{s?.label}</Badge>; } },
   { accessorKey: 'reason', header: 'Причина' },
-  { accessorKey: 'totalAmount', header: 'Сумма', cell: ({ row }) => formatCurrency(row.original.totalAmount) },
+  { accessorKey: 'totalAmount', header: 'Сумма', cell: ({ row }) => formatCurrency(row.original.totalAmount ?? 0) },
   { accessorKey: 'createdAt', header: 'Дата', cell: ({ row }) => formatDate(row.original.createdAt) },
 ];
 

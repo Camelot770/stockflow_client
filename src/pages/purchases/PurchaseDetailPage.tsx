@@ -58,7 +58,7 @@ export default function PurchaseDetailPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">Сумма</p>
-            <p className="text-xl font-bold">{formatCurrency(order.totalAmount)}</p>
+            <p className="text-xl font-bold">{formatCurrency(order.totalAmount ?? 0)}</p>
           </CardContent>
         </Card>
       </div>
@@ -80,10 +80,10 @@ export default function PurchaseDetailPage() {
               {order.items?.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.product?.name || item.productId}</TableCell>
-                  <TableCell>{formatNumber(item.quantity)}</TableCell>
-                  <TableCell>{formatNumber(item.receivedQuantity)}</TableCell>
-                  <TableCell>{formatCurrency(item.price)}</TableCell>
-                  <TableCell>{formatCurrency(item.amount)}</TableCell>
+                  <TableCell>{formatNumber(item.quantity ?? 0)}</TableCell>
+                  <TableCell>{formatNumber(item.receivedQuantity ?? 0)}</TableCell>
+                  <TableCell>{formatCurrency(item.price ?? 0)}</TableCell>
+                  <TableCell>{formatCurrency(item.amount ?? 0)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

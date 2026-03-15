@@ -12,7 +12,8 @@ import { toast } from 'sonner';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 export default function UnitsPage() {
-  const { data: units = [] } = useUnits();
+  const { data: rawUnits } = useUnits();
+  const units = Array.isArray(rawUnits) ? rawUnits : Array.isArray((rawUnits as any)?.data) ? (rawUnits as any).data : [];
   const qc = useQueryClient();
   const createUnit = useMutation({
     mutationFn: (data: { name: string; shortName: string }) => productsApi.createUnit(data),

@@ -23,7 +23,7 @@ const columns: ColumnDef<Transaction, unknown>[] = [
   { accessorKey: 'description', header: 'Описание', cell: ({ row }) => row.original.description || '-' },
   { accessorKey: 'account.name', header: 'Счёт', cell: ({ row }) => row.original.account?.name || '-' },
   { accessorKey: 'category.name', header: 'Категория', cell: ({ row }) => row.original.category?.name || '-' },
-  { accessorKey: 'amount', header: 'Сумма', cell: ({ row }) => <span className={cn('font-medium', row.original.type === 'income' ? 'text-emerald-500' : row.original.type === 'expense' ? 'text-red-500' : '')}>{row.original.type === 'income' ? '+' : row.original.type === 'expense' ? '-' : ''}{formatCurrency(row.original.amount)}</span> },
+  { accessorKey: 'amount', header: 'Сумма', cell: ({ row }) => <span className={cn('font-medium', row.original.type === 'income' ? 'text-emerald-500' : row.original.type === 'expense' ? 'text-red-500' : '')}>{row.original.type === 'income' ? '+' : row.original.type === 'expense' ? '-' : ''}{formatCurrency(row.original.amount ?? 0)}</span> },
 ];
 
 export default function TransactionsPage() {

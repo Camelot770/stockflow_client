@@ -41,7 +41,7 @@ export default function SaleDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Клиент</p><p className="font-medium">{order.customer?.name || '-'}</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Склад</p><p className="font-medium">{order.warehouse?.name || '-'}</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Сумма</p><p className="text-xl font-bold">{formatCurrency(order.totalAmount)}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Сумма</p><p className="text-xl font-bold">{formatCurrency(order.totalAmount ?? 0)}</p></CardContent></Card>
       </div>
 
       <Card>
@@ -53,10 +53,10 @@ export default function SaleDetailPage() {
               {order.items?.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.product?.name || item.productId}</TableCell>
-                  <TableCell>{formatNumber(item.quantity)}</TableCell>
-                  <TableCell>{formatCurrency(item.price)}</TableCell>
-                  <TableCell>{item.discount}%</TableCell>
-                  <TableCell>{formatCurrency(item.amount)}</TableCell>
+                  <TableCell>{formatNumber(item.quantity ?? 0)}</TableCell>
+                  <TableCell>{formatCurrency(item.price ?? 0)}</TableCell>
+                  <TableCell>{item.discount ?? 0}%</TableCell>
+                  <TableCell>{formatCurrency(item.amount ?? 0)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

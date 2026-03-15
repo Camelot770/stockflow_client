@@ -35,7 +35,7 @@ const columns: ColumnDef<PurchaseOrder, unknown>[] = [
   {
     accessorKey: 'totalAmount',
     header: 'Сумма',
-    cell: ({ row }) => formatCurrency(row.original.totalAmount),
+    cell: ({ row }) => formatCurrency(row.original.totalAmount ?? 0),
   },
   {
     id: 'items',

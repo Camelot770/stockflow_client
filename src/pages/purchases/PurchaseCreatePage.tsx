@@ -22,7 +22,8 @@ interface OrderItem {
 export default function PurchaseCreatePage() {
   const navigate = useNavigate();
   const { data: suppliersData } = useSuppliers();
-  const { data: warehouses = [] } = useWarehouses();
+  const { data: rawWarehouses } = useWarehouses();
+  const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
   const createOrder = useCreatePurchaseOrder();
 
   const [supplierId, setSupplierId] = useState('');

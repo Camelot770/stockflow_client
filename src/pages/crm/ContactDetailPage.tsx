@@ -22,7 +22,7 @@ export default function ContactDetailPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/crm/contacts')}><ArrowLeft className="h-4 w-4" /></Button>
-        <Avatar className="h-12 w-12"><AvatarFallback className="bg-primary/10 text-primary text-lg">{customer.name.slice(0, 2).toUpperCase()}</AvatarFallback></Avatar>
+        <Avatar className="h-12 w-12"><AvatarFallback className="bg-primary/10 text-primary text-lg">{(customer.name || '??').slice(0, 2).toUpperCase()}</AvatarFallback></Avatar>
         <div>
           <h1 className="text-2xl font-bold">{customer.name}</h1>
           <div className="flex items-center gap-2">
@@ -46,9 +46,9 @@ export default function ContactDetailPage() {
           <Card>
             <CardHeader><CardTitle>Статистика</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex justify-between"><span className="text-sm text-muted-foreground">Заказы</span><span className="font-medium">{formatNumber(customer.totalOrders)}</span></div>
+              <div className="flex justify-between"><span className="text-sm text-muted-foreground">Заказы</span><span className="font-medium">{formatNumber(customer.totalOrders ?? 0)}</span></div>
               <Separator />
-              <div className="flex justify-between"><span className="text-sm text-muted-foreground">Выручка</span><span className="font-medium">{formatCurrency(customer.totalRevenue)}</span></div>
+              <div className="flex justify-between"><span className="text-sm text-muted-foreground">Выручка</span><span className="font-medium">{formatCurrency(customer.totalRevenue ?? 0)}</span></div>
               <Separator />
               <div className="flex justify-between"><span className="text-sm text-muted-foreground">Создан</span><span className="font-medium">{formatDate(customer.createdAt)}</span></div>
             </CardContent>
