@@ -12,6 +12,7 @@ interface LowStockWidgetProps {
 
 export function LowStockWidget({ products }: LowStockWidgetProps) {
   const navigate = useNavigate();
+  const safeProducts = products || [];
 
   return (
     <Card>
@@ -20,11 +21,11 @@ export function LowStockWidget({ products }: LowStockWidgetProps) {
           <AlertTriangle className="h-4 w-4 text-yellow-500" />
           Низкий остаток
         </CardTitle>
-        <Badge variant="warning">{products.length}</Badge>
+        <Badge variant="warning">{safeProducts.length}</Badge>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {products.slice(0, 5).map((product) => {
+          {safeProducts.slice(0, 5).map((product) => {
             const percent = product.minStock > 0 ? Math.min((product.totalStock / product.minStock) * 100, 100) : 0;
             return (
               <div
@@ -44,7 +45,7 @@ export function LowStockWidget({ products }: LowStockWidgetProps) {
               </div>
             );
           })}
-          {products.length === 0 && (
+          {safeProducts.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-4">
               Все товары в наличии
             </p>

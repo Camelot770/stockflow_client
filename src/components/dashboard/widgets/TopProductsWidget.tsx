@@ -8,12 +8,13 @@ interface TopProductsWidgetProps {
 }
 
 export function TopProductsWidget({ data }: TopProductsWidgetProps) {
-  const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
+  const safeData = data || [];
+  const maxRevenue = Math.max(...safeData.map((d) => d.revenue), 1);
 
   return (
     <ChartCard title="Топ товаров">
       <div className="space-y-3">
-        {data.slice(0, 5).map((item, i) => (
+        {safeData.slice(0, 5).map((item, i) => (
           <div key={item.product.id} className="flex items-center gap-3">
             <span className="text-sm font-medium text-muted-foreground w-5">{i + 1}</span>
             <div className="flex-1 min-w-0">
@@ -33,7 +34,7 @@ export function TopProductsWidget({ data }: TopProductsWidgetProps) {
             </div>
           </div>
         ))}
-        {data.length === 0 && (
+        {safeData.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-4">Нет данных</p>
         )}
       </div>

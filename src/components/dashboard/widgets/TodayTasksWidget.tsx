@@ -19,6 +19,7 @@ const priorityColors: Record<string, string> = {
 
 export function TodayTasksWidget({ tasks }: TodayTasksWidgetProps) {
   const navigate = useNavigate();
+  const safeTasks = tasks || [];
 
   return (
     <Card>
@@ -27,11 +28,11 @@ export function TodayTasksWidget({ tasks }: TodayTasksWidgetProps) {
           <Clock className="h-4 w-4 text-primary" />
           Задачи на сегодня
         </CardTitle>
-        <Badge variant="secondary">{tasks.length}</Badge>
+        <Badge variant="secondary">{safeTasks.length}</Badge>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          {tasks.slice(0, 5).map((task) => (
+          {safeTasks.slice(0, 5).map((task) => (
             <div
               key={task.id}
               className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 rounded-md p-1.5 -mx-1.5 transition-colors"
@@ -47,7 +48,7 @@ export function TodayTasksWidget({ tasks }: TodayTasksWidgetProps) {
               </span>
             </div>
           ))}
-          {tasks.length === 0 && (
+          {safeTasks.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-4">
               Нет задач на сегодня
             </p>
