@@ -83,12 +83,6 @@ export default function LoginPage() {
               {loginMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Войти
             </Button>
-            <p className="text-sm text-muted-foreground text-center">
-              Нет аккаунта?{' '}
-              <Link to="/register" className="text-primary hover:underline">
-                Зарегистрироваться
-              </Link>
-            </p>
           </CardFooter>
         </form>
       </Card>

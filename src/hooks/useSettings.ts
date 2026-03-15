@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { settingsApi } from '@/api/settings';
-import type { ListParams, Organization, User } from '@/types';
+import type { ListParams, CompanySettings, User } from '@/types';
 
-export function useOrganization() {
+export function useCompanySettings() {
   return useQuery({
-    queryKey: ['organization'],
-    queryFn: () => settingsApi.getOrganization(),
+    queryKey: ['company-settings'],
+    queryFn: () => settingsApi.getCompanySettings(),
   });
 }
 
-export function useUpdateOrganization() {
+export function useUpdateCompanySettings() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Partial<Organization>) => settingsApi.updateOrganization(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['organization'] }),
+    mutationFn: (data: Partial<CompanySettings>) => settingsApi.updateCompanySettings(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['company-settings'] }),
   });
 }
 

@@ -5,14 +5,6 @@ export const authApi = {
   login: (email: string, password: string) =>
     apiClient.post<AuthResponse>('/auth/login', { email, password }).then((r) => r.data),
 
-  register: (data: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    companyName: string;
-  }) => apiClient.post<AuthResponse>('/auth/register', data).then((r) => r.data),
-
   refresh: (refreshToken: string) =>
     apiClient.post<AuthResponse>('/auth/refresh', { refreshToken }).then((r) => r.data),
 

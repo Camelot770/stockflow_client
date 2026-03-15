@@ -1,13 +1,13 @@
 import apiClient from './client';
-import type { Organization, User, AuditLog, PaginatedResponse, ListParams } from '@/types';
+import type { CompanySettings, User, AuditLog, PaginatedResponse, ListParams } from '@/types';
 
 export const settingsApi = {
-  /** Организация */
-  getOrganization: () =>
-    apiClient.get<Organization>('/organization').then((r) => r.data),
+  /** Настройки компании */
+  getCompanySettings: () =>
+    apiClient.get<CompanySettings>('/company').then((r) => r.data),
 
-  updateOrganization: (data: Partial<Organization>) =>
-    apiClient.patch<Organization>('/organization', data).then((r) => r.data),
+  updateCompanySettings: (data: Partial<CompanySettings>) =>
+    apiClient.put<CompanySettings>('/company', data).then((r) => r.data),
 
   /** Пользователи */
   getUsers: (params?: ListParams) =>
