@@ -35,9 +35,16 @@ function processQueue(error: unknown, token: string | null) {
   failedQueue = [];
 }
 
-/** Интерсептор ответа — обновление токена при 401 */
+/** Интерсептор ответа — извлекаем data из обёртки { success, data } и обновляем токен при 401 */
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Backend оборачивает ответ в { success: true, data: ... }
+    // Автоматически разворачиваем, чтобы r.data возвращало сразу полезные данные
+    if (response.data && typeof response.data === 'object' && 'success' in response.data && 'data' in response.data) {
+      response.data = response.data.data;
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -68,7 +75,9 @@ apiClient.interceptors.response.use(
           `${import.meta.env.VITE_API_URL}/auth/refresh`,
           { refreshToken },
         );
-        const { accessToken, refreshToken: newRefreshToken } = data.tokens || data;
+        // Backend возвращает { success, data: { accessToken, refreshToken } }
+        const tokenData = data.data || data;
+        const { accessToken, refreshToken: newRefreshToken } = tokenData.tokens || tokenData;
         useAuthStore.getState().setTokens({ accessToken, refreshToken: newRefreshToken });
         processQueue(null, accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
