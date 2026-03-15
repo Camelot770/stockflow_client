@@ -1,0 +1,62 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { warehouseApi } from '@/api/warehouse';
+import type { ListParams, Warehouse, StockOperation } from '@/types';
+
+export function useWarehouses() {
+  return useQuery({
+    queryKey: ['warehouses'],
+    queryFn: () => warehouseApi.getWarehouses(),
+  });
+}
+
+export function useStock(params?: ListParams) {
+  return useQuery({
+    queryKey: ['stock', params],
+    queryFn: () => warehouseApi.getStock(params),
+  });
+}
+
+export function useStockOperations(params?: ListParams) {
+  return useQuery({
+    queryKey: ['stock-operations', params],
+    queryFn: () => warehouseApi.getOperations(params),
+  });
+}
+
+export function useStockOperation(id: string) {
+  return useQuery({
+    queryKey: ['stock-operations', id],
+    queryFn: () => warehouseApi.getOperation(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateWarehouse() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Warehouse>) => warehouseApi.createWarehouse(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['warehouses'] }),
+  });
+}
+
+export function useCreateStockOperation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<StockOperation>) => warehouseApi.createOperation(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['stock-operations'] });
+      qc.invalidateQueries({ queryKey: ['stock'] });
+    },
+  });
+}
+
+export function useCompleteOperation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => warehouseApi.completeOperation(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['stock-operations'] });
+      qc.invalidateQueries({ queryKey: ['stock'] });
+    },
+  });
+}
