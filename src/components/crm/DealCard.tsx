@@ -41,7 +41,7 @@ export function DealCard({ deal, onClick }: DealCardProps) {
         </button>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{deal.title}</p>
-          <p className="text-lg font-bold text-primary mt-1">{formatCurrency(deal.amount)}</p>
+          <p className="text-lg font-bold text-primary mt-1">{formatCurrency(deal.amount ?? 0)}</p>
           {deal.customer && (
             <div className="flex items-center gap-1.5 mt-2">
               <User className="h-3 w-3 text-muted-foreground" />
@@ -54,7 +54,7 @@ export function DealCard({ deal, onClick }: DealCardProps) {
             {deal.assignedUser && (
               <Avatar className="h-6 w-6">
                 <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                  {deal.assignedUser.firstName[0]}{deal.assignedUser.lastName[0]}
+                  {(deal.assignedUser.firstName || '?')[0]}{(deal.assignedUser.lastName || '?')[0]}
                 </AvatarFallback>
               </Avatar>
             )}

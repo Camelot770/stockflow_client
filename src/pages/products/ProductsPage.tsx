@@ -39,8 +39,8 @@ const columns: ColumnDef<Product, unknown>[] = [
     accessorKey: 'totalStock',
     header: 'Остаток',
     cell: ({ row }) => {
-      const stock = row.original.totalStock;
-      const min = row.original.minStock;
+      const stock = row.original.totalStock ?? 0;
+      const min = row.original.minStock ?? 0;
       return (
         <Badge variant={stock <= min ? 'destructive' : stock <= min * 1.5 ? 'warning' : 'secondary'}>
           {formatNumber(stock)}

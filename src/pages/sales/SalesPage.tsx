@@ -22,7 +22,7 @@ const columns: ColumnDef<SalesOrder, unknown>[] = [
   { accessorKey: 'number', header: '№ заказа' },
   { accessorKey: 'customer.name', header: 'Клиент', cell: ({ row }) => row.original.customer?.name || '-' },
   { accessorKey: 'status', header: 'Статус', cell: ({ row }) => { const s = statusMap[row.original.status]; return <Badge variant={s?.variant}>{s?.label}</Badge>; } },
-  { accessorKey: 'totalAmount', header: 'Сумма', cell: ({ row }) => formatCurrency(row.original.totalAmount) },
+  { accessorKey: 'totalAmount', header: 'Сумма', cell: ({ row }) => formatCurrency(row.original.totalAmount ?? 0) },
   { id: 'items', header: 'Позиций', cell: ({ row }) => row.original.items?.length || 0 },
   { accessorKey: 'createdAt', header: 'Дата', cell: ({ row }) => formatDate(row.original.createdAt) },
 ];

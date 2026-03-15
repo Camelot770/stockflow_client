@@ -120,16 +120,16 @@ export default function ProductDetailPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center p-4 rounded-lg bg-muted/50">
                   <p className="text-sm text-muted-foreground">Закупочная цена</p>
-                  <p className="text-2xl font-bold mt-1">{formatCurrency(product.purchasePrice)}</p>
+                  <p className="text-2xl font-bold mt-1">{formatCurrency(product.purchasePrice ?? 0)}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/50">
                   <p className="text-sm text-muted-foreground">Продажная цена</p>
-                  <p className="text-2xl font-bold mt-1">{formatCurrency(product.sellingPrice)}</p>
+                  <p className="text-2xl font-bold mt-1">{formatCurrency(product.sellingPrice ?? 0)}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/50">
                   <p className="text-sm text-muted-foreground">Маржа</p>
                   <p className="text-2xl font-bold mt-1 text-emerald-500">
-                    {formatCurrency(product.sellingPrice - product.purchasePrice)}
+                    {formatCurrency((product.sellingPrice ?? 0) - (product.purchasePrice ?? 0))}
                   </p>
                 </div>
               </div>
@@ -146,15 +146,15 @@ export default function ProductDetailPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div className="text-center p-4 rounded-lg bg-muted/50">
                   <p className="text-sm text-muted-foreground">Общий остаток</p>
-                  <p className="text-2xl font-bold">{formatNumber(product.totalStock)}</p>
+                  <p className="text-2xl font-bold">{formatNumber(product.totalStock ?? 0)}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/50">
                   <p className="text-sm text-muted-foreground">Мин. остаток</p>
-                  <p className="text-2xl font-bold">{formatNumber(product.minStock)}</p>
+                  <p className="text-2xl font-bold">{formatNumber(product.minStock ?? 0)}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/50">
                   <p className="text-sm text-muted-foreground">Стоимость остатков</p>
-                  <p className="text-2xl font-bold">{formatCurrency(product.totalStock * product.purchasePrice)}</p>
+                  <p className="text-2xl font-bold">{formatCurrency((product.totalStock ?? 0) * (product.purchasePrice ?? 0))}</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground text-center py-4">
@@ -177,7 +177,9 @@ export default function ProductDetailPage() {
         <TabsContent value="history">
           <Card>
             <CardContent className="pt-6">
-              {movements?.data?.length > 0 ? (
+              {(() => {
+                const movementsList = Array.isArray(movements) ? movements : Array.isArray(movements?.data) ? movements.data : [];
+                return movementsList.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -188,7 +190,7 @@ export default function ProductDetailPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {movements.data.map((m: { id: string; createdAt: string; type: string; quantity: number; warehouse?: { name: string } }) => (
+                    {movementsList.map((m: { id: string; createdAt: string; type: string; quantity: number; warehouse?: { name: string } }) => (
                       <TableRow key={m.id}>
                         <TableCell>{formatDate(m.createdAt)}</TableCell>
                         <TableCell>{m.type}</TableCell>
@@ -202,7 +204,8 @@ export default function ProductDetailPage() {
                 <p className="text-sm text-muted-foreground text-center py-8">
                   Нет данных о движении товара
                 </p>
-              )}
+              );
+              })()}
             </CardContent>
           </Card>
         </TabsContent>

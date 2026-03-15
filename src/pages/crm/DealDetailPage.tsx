@@ -17,7 +17,8 @@ export default function DealDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: deal, isLoading } = useDeal(id!);
-  const { data: comments = [] } = useDealComments(id!);
+  const { data: rawComments } = useDealComments(id!);
+  const comments = Array.isArray(rawComments) ? rawComments : Array.isArray((rawComments as any)?.data) ? (rawComments as any).data : [];
   const addComment = useAddComment();
   const [commentText, setCommentText] = useState('');
 
@@ -41,11 +42,11 @@ export default function DealDetailPage() {
             <Badge variant={deal.status === 'won' ? 'success' : deal.status === 'lost' ? 'destructive' : 'secondary'}>
               {deal.status === 'won' ? 'Выиграна' : deal.status === 'lost' ? 'Проиграна' : 'Открыта'}
             </Badge>
-            {deal.stage && <Badge style={{ backgroundColor: deal.stage.color + '20', color: deal.stage.color }}>{deal.stage.name}</Badge>}
+            {deal.stage && <Badge style={deal.stage.color ? { backgroundColor: deal.stage.color + '20', color: deal.stage.color } : undefined}>{deal.stage.name}</Badge>}
           </div>
         </div>
         <div className="ml-auto text-right">
-          <p className="text-2xl font-bold text-primary">{formatCurrency(deal.amount)}</p>
+          <p className="text-2xl font-bold text-primary">{formatCurrency(deal.amount ?? 0)}</p>
         </div>
       </div>
 

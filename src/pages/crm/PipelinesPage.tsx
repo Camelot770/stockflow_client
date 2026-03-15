@@ -11,7 +11,8 @@ import { usePipelines } from '@/hooks/useDeals';
 import type { Pipeline } from '@/types';
 
 export default function PipelinesPage() {
-  const { data: pipelines = [], isLoading } = usePipelines();
+  const { data: rawPipelines, isLoading } = usePipelines();
+  const pipelines = Array.isArray(rawPipelines) ? rawPipelines : Array.isArray((rawPipelines as any)?.data) ? (rawPipelines as any).data : [];
   const [showCreate, setShowCreate] = useState(false);
 
   return (
@@ -46,7 +47,7 @@ export default function PipelinesPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {p.stages?.sort((a, b) => a.order - b.order).map((stage) => (
+                {(p.stages || []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((stage) => (
                   <div key={stage.id} className="flex items-center gap-3 p-2 rounded-md bg-muted/50">
                     <GripVertical className="h-4 w-4 text-muted-foreground" />
                     <div className="h-3 w-3 rounded-full" style={{ backgroundColor: stage.color }} />

@@ -25,18 +25,18 @@ const columns: ColumnDef<StockItem, unknown>[] = [
   {
     accessorKey: 'quantity',
     header: 'На складе',
-    cell: ({ row }) => formatNumber(row.original.quantity),
+    cell: ({ row }) => formatNumber(row.original.quantity ?? 0),
   },
   {
     accessorKey: 'reservedQuantity',
     header: 'Резерв',
-    cell: ({ row }) => formatNumber(row.original.reservedQuantity),
+    cell: ({ row }) => formatNumber(row.original.reservedQuantity ?? 0),
   },
   {
     accessorKey: 'availableQuantity',
     header: 'Доступно',
     cell: ({ row }) => {
-      const avail = row.original.availableQuantity;
+      const avail = row.original.availableQuantity ?? 0;
       const min = row.original.product?.minStock || 0;
       return (
         <Badge variant={avail <= min ? 'destructive' : 'secondary'}>
@@ -48,7 +48,7 @@ const columns: ColumnDef<StockItem, unknown>[] = [
   {
     id: 'value',
     header: 'Стоимость',
-    cell: ({ row }) => formatCurrency(row.original.quantity * (row.original.product?.purchasePrice || 0)),
+    cell: ({ row }) => formatCurrency((row.original.quantity ?? 0) * (row.original.product?.purchasePrice || 0)),
   },
 ];
 

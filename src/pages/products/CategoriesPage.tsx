@@ -40,7 +40,8 @@ function CategoryTree({ categories, level = 0, onDelete }: { categories: Categor
 }
 
 export default function CategoriesPage() {
-  const { data: categories = [], isLoading } = useCategories();
+  const { data: rawCategories, isLoading } = useCategories();
+  const categories = Array.isArray(rawCategories) ? rawCategories : Array.isArray((rawCategories as any)?.data) ? (rawCategories as any).data : [];
   const createCategory = useCreateCategory();
   const deleteCategory = useDeleteCategory();
   const [showCreate, setShowCreate] = useState(false);

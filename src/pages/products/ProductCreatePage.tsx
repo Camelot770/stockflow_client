@@ -34,8 +34,10 @@ type ProductForm = z.infer<typeof productSchema>;
 export default function ProductCreatePage() {
   const navigate = useNavigate();
   const createProduct = useCreateProduct();
-  const { data: categories } = useCategories();
-  const { data: units } = useUnits();
+  const { data: rawCategories } = useCategories();
+  const { data: rawUnits } = useUnits();
+  const categories = Array.isArray(rawCategories) ? rawCategories : Array.isArray((rawCategories as any)?.data) ? (rawCategories as any).data : [];
+  const units = Array.isArray(rawUnits) ? rawUnits : Array.isArray((rawUnits as any)?.data) ? (rawUnits as any).data : [];
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
@@ -94,7 +96,7 @@ export default function ProductCreatePage() {
                     <SelectValue placeholder="Выберите категорию" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(categories || []).map((cat) => (
+                    {categories.map((cat: any) => (
                       <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                     ))}
                   </SelectContent>
@@ -112,7 +114,7 @@ export default function ProductCreatePage() {
                   <SelectValue placeholder="Выберите единицу" />
                 </SelectTrigger>
                 <SelectContent>
-                  {(units || []).map((u) => (
+                  {units.map((u: any) => (
                     <SelectItem key={u.id} value={u.id}>{u.name} ({u.shortName})</SelectItem>
                   ))}
                 </SelectContent>

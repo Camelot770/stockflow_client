@@ -18,7 +18,8 @@ interface OrderItem { productId: string; quantity: number; price: number; discou
 
 export default function SaleCreatePage() {
   const navigate = useNavigate();
-  const { data: warehouses = [] } = useWarehouses();
+  const { data: rawWarehouses } = useWarehouses();
+  const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
   const { data: customersData } = useCustomers();
   const createOrder = useCreateSalesOrder();
 

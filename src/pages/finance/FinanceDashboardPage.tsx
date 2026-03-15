@@ -7,8 +7,9 @@ import { useFinanceAccounts } from '@/hooks/useFinance';
 import { formatCurrency } from '@/lib/utils';
 
 export default function FinanceDashboardPage() {
-  const { data: accounts = [] } = useFinanceAccounts();
-  const totalBalance = accounts.reduce((s, a) => s + a.balance, 0);
+  const { data: rawAccounts } = useFinanceAccounts();
+  const accounts = Array.isArray(rawAccounts) ? rawAccounts : Array.isArray((rawAccounts as any)?.data) ? (rawAccounts as any).data : [];
+  const totalBalance = accounts.reduce((s: number, a: any) => s + (a.balance ?? 0), 0);
 
   return (
     <div className="space-y-6">

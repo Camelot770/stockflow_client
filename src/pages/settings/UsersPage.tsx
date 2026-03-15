@@ -19,8 +19,8 @@ const roleLabels: Record<string, string> = { owner: 'Владелец', admin: '
 const columns: ColumnDef<User, unknown>[] = [
   { id: 'user', header: 'Пользователь', cell: ({ row }) => (
     <div className="flex items-center gap-3">
-      <Avatar className="h-8 w-8"><AvatarFallback className="text-xs bg-primary/10 text-primary">{row.original.firstName[0]}{row.original.lastName[0]}</AvatarFallback></Avatar>
-      <div><p className="font-medium">{row.original.firstName} {row.original.lastName}</p><p className="text-xs text-muted-foreground">{row.original.email}</p></div>
+      <Avatar className="h-8 w-8"><AvatarFallback className="text-xs bg-primary/10 text-primary">{(row.original.firstName || '?')[0]}{(row.original.lastName || '?')[0]}</AvatarFallback></Avatar>
+      <div><p className="font-medium">{row.original.firstName || ''} {row.original.lastName || ''}</p><p className="text-xs text-muted-foreground">{row.original.email}</p></div>
     </div>
   )},
   { accessorKey: 'role', header: 'Роль', cell: ({ row }) => <Badge variant="secondary">{roleLabels[row.original.role]}</Badge> },
