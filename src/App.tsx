@@ -7,7 +7,6 @@ import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 
 /** Ленивая загрузка страниц */
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
-const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage'));
 
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
@@ -100,7 +99,6 @@ export default function App() {
       <Routes>
         {/* Публичные маршруты */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
 
         {/* Защищённые маршруты */}

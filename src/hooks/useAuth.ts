@@ -44,26 +44,6 @@ export function useLogin() {
   });
 }
 
-/** Хук регистрации */
-export function useRegister() {
-  const { setAuth } = useAuthStore();
-  const navigate = useNavigate();
-
-  return useMutation({
-    mutationFn: (data: {
-      email: string;
-      password: string;
-      firstName: string;
-      lastName: string;
-      companyName: string;
-    }) => authApi.register(data),
-    onSuccess: (data) => {
-      setAuth(data.user, data.tokens);
-      navigate('/');
-    },
-  });
-}
-
 /** Хук выхода */
 export function useLogout() {
   const { logout } = useAuthStore();

@@ -6,24 +6,21 @@ export interface User {
   lastName: string;
   role: 'owner' | 'admin' | 'manager' | 'viewer';
   avatar?: string;
-  organizationId: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-/** Организация */
-export interface Organization {
+/** Настройки компании */
+export interface CompanySettings {
   id: string;
   name: string;
+  email?: string;
+  phone?: string;
   inn?: string;
   kpp?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
+  legalAddress?: string;
   logo?: string;
-  currency: string;
-  createdAt: string;
 }
 
 /** Токены авторизации */
