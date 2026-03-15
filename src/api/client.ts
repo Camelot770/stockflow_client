@@ -38,10 +38,16 @@ function processQueue(error: unknown, token: string | null) {
 /** Интерсептор ответа — извлекаем data из обёртки { success, data } и обновляем токен при 401 */
 apiClient.interceptors.response.use(
   (response) => {
-    // Backend оборачивает ответ в { success: true, data: ... }
-    // Автоматически разворачиваем, чтобы r.data возвращало сразу полезные данные
+    // Backend оборачивает ответ в { success: true, data: ..., meta?: ... }
+    // Автоматически разворачиваем
     if (response.data && typeof response.data === 'object' && 'success' in response.data && 'data' in response.data) {
-      response.data = response.data.data;
+      const { data, meta } = response.data;
+      // Если есть meta (пагинация) — возвращаем { data, meta }
+      if (meta) {
+        response.data = { data, meta };
+      } else {
+        response.data = data;
+      }
     }
     return response;
   },
