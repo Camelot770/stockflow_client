@@ -46,7 +46,7 @@ const mockStats = {
 
 export default function DashboardPage() {
   const { data: stats, isLoading } = useDashboardStats();
-  const s = stats || mockStats;
+  const s = stats && stats.revenue !== undefined ? stats : mockStats;
 
   if (isLoading) return <LoadingSkeleton type="page" />;
 

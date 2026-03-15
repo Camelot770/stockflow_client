@@ -10,10 +10,12 @@ interface CrmFunnelWidgetProps {
 const COLORS = ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'];
 
 export function CrmFunnelWidget({ data }: CrmFunnelWidgetProps) {
+  const safeData = data || [];
+
   return (
     <ChartCard title="Воронка CRM">
       <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={data} layout="vertical">
+        <BarChart data={safeData} layout="vertical">
           <XAxis type="number" hide />
           <YAxis dataKey="stage" type="category" width={100} fontSize={12} stroke="#64748b" tickLine={false} axisLine={false} />
           <Tooltip
@@ -24,7 +26,7 @@ export function CrmFunnelWidget({ data }: CrmFunnelWidgetProps) {
             ]}
           />
           <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-            {data.map((_, index) => (
+            {safeData.map((_, index) => (
               <Cell key={index} fill={COLORS[index % COLORS.length]} />
             ))}
           </Bar>

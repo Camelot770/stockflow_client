@@ -11,11 +11,12 @@ interface TopCustomersWidgetProps {
 
 export function TopCustomersWidget({ data }: TopCustomersWidgetProps) {
   const navigate = useNavigate();
+  const safeData = data || [];
 
   return (
     <ChartCard title="Топ клиентов">
       <div className="space-y-3">
-        {data.slice(0, 5).map((item) => (
+        {safeData.slice(0, 5).map((item) => (
           <div
             key={item.customer.id}
             className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded-md p-1.5 -mx-1.5 transition-colors"
@@ -33,7 +34,7 @@ export function TopCustomersWidget({ data }: TopCustomersWidgetProps) {
             <span className="text-sm font-medium">{formatCurrency(item.revenue)}</span>
           </div>
         ))}
-        {data.length === 0 && (
+        {safeData.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-4">Нет данных</p>
         )}
       </div>
