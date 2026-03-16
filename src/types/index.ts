@@ -7,6 +7,8 @@ export interface User {
   role: 'owner' | 'admin' | 'manager' | 'viewer';
   avatar?: string;
   isActive: boolean;
+  customRoleId?: string;
+  customRole?: { id: string; name: string; permissions: string[] };
   createdAt: string;
   updatedAt: string;
 }
