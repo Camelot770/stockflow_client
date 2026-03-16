@@ -49,7 +49,7 @@ export default function ProductDetailPage() {
           </Badge>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate(`/products/${product.id}`)}>
+          <Button variant="outline" onClick={() => navigate(`/products/${product.id}/edit`)}>
             <Edit className="h-4 w-4 mr-2" />
             Редактировать
           </Button>

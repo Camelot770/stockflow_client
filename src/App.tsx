@@ -14,6 +14,7 @@ const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
 const ProductsPage = lazy(() => import('@/pages/products/ProductsPage'));
 const ProductCreatePage = lazy(() => import('@/pages/products/ProductCreatePage'));
 const ProductDetailPage = lazy(() => import('@/pages/products/ProductDetailPage'));
+const ProductEditPage = lazy(() => import('@/pages/products/ProductEditPage'));
 const CategoriesPage = lazy(() => import('@/pages/products/CategoriesPage'));
 
 const WarehousePage = lazy(() => import('@/pages/warehouse/WarehousePage'));
@@ -122,6 +123,7 @@ export default function App() {
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/new" element={<ProductCreatePage />} />
           <Route path="products/:id" element={<ProductDetailPage />} />
+          <Route path="products/:id/edit" element={<ProductEditPage />} />
           <Route path="categories" element={<CategoriesPage />} />
 
           {/* Склад */}

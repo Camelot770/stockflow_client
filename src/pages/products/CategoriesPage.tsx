@@ -51,7 +51,7 @@ export default function CategoriesPage() {
 
   const handleCreate = () => {
     createCategory.mutate(
-      { name, parentId: parentId || undefined },
+      { name, parentId: parentId && parentId !== 'none' ? parentId : undefined },
       {
         onSuccess: () => {
           toast.success('Категория создана');
