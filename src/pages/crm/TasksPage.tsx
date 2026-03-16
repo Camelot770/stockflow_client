@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Plus, CheckCircle2, Circle } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
@@ -23,15 +23,6 @@ const priorityMap: Record<string, { label: string; variant: 'default' | 'seconda
 
 const statusMap: Record<string, string> = { NEW: 'К выполнению', IN_PROGRESS: 'В работе', COMPLETED: 'Выполнена', CANCELLED: 'Отменена' };
 
-const columns: ColumnDef<Task, unknown>[] = [
-  { id: 'status_icon', header: '', cell: ({ row }) => row.original.status === 'COMPLETED' ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <Circle className="h-4 w-4 text-muted-foreground" />, size: 40 },
-  { accessorKey: 'title', header: 'Задача' },
-  { accessorKey: 'priority', header: 'Приоритет', cell: ({ row }) => { const p = priorityMap[row.original.priority]; return <Badge variant={p?.variant}>{p?.label}</Badge>; } },
-  { accessorKey: 'status', header: 'Статус', cell: ({ row }) => statusMap[row.original.status] || row.original.status },
-  { accessorKey: 'assignedUser', header: 'Ответственный', cell: ({ row }) => row.original.assignedUser ? `${row.original.assignedUser.firstName} ${row.original.assignedUser.lastName}` : '-' },
-  { accessorKey: 'dueDate', header: 'Срок', cell: ({ row }) => row.original.dueDate ? formatDate(row.original.dueDate) : '-' },
-];
-
 export default function TasksPage() {
   const [params] = useState({ page: 1, limit: 50 });
   const { data, isLoading } = useTasks(params);
@@ -39,6 +30,51 @@ export default function TasksPage() {
   const updateTask = useUpdateTask();
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', priority: 'MEDIUM' as string, dueDate: '' });
+
+  const handleToggleStatus = (task: Task) => {
+    const newStatus = task.status === 'COMPLETED' ? 'NEW' : 'COMPLETED';
+    updateTask.mutate(
+      { id: task.id, data: { status: newStatus } },
+      {
+        onSuccess: () => {
+          toast.success(newStatus === 'COMPLETED' ? 'Задача выполнена' : 'Задача открыта заново');
+        },
+      },
+    );
+  };
+
+  const columns: ColumnDef<Task, unknown>[] = useMemo(() => [
+    {
+      id: 'status_icon',
+      header: '',
+      cell: ({ row }) => {
+        const isCompleted = row.original.status === 'COMPLETED';
+        return (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleStatus(row.original);
+            }}
+            className="group flex items-center justify-center rounded-full transition-colors hover:bg-muted p-0.5"
+            title={isCompleted ? 'Вернуть в работу' : 'Отметить выполненной'}
+          >
+            {isCompleted ? (
+              <CheckCircle2 className="h-5 w-5 text-emerald-500 group-hover:text-emerald-400 transition-colors" />
+            ) : (
+              <Circle className="h-5 w-5 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
+            )}
+          </button>
+        );
+      },
+      size: 40,
+    },
+    { accessorKey: 'title', header: 'Задача', cell: ({ row }) => <span className={row.original.status === 'COMPLETED' ? 'line-through text-muted-foreground' : ''}>{row.original.title}</span> },
+    { accessorKey: 'priority', header: 'Приоритет', cell: ({ row }) => { const p = priorityMap[row.original.priority]; return <Badge variant={p?.variant}>{p?.label}</Badge>; } },
+    { accessorKey: 'status', header: 'Статус', cell: ({ row }) => statusMap[row.original.status] || row.original.status },
+    { accessorKey: 'assignedUser', header: 'Ответственный', cell: ({ row }) => row.original.assignedUser ? `${row.original.assignedUser.firstName} ${row.original.assignedUser.lastName}` : '-' },
+    { accessorKey: 'dueDate', header: 'Срок', cell: ({ row }) => row.original.dueDate ? formatDate(row.original.dueDate) : '-' },
+  ], []);
 
   const handleCreate = () => {
     createTask.mutate({ title: form.title, description: form.description, priority: form.priority as Task['priority'], dueDate: form.dueDate || undefined }, {
