@@ -80,7 +80,7 @@ export const crmApi = {
     apiClient.post<Task>('/tasks', data).then((r) => r.data),
 
   updateTask: (id: string, data: Partial<Task>) =>
-    apiClient.patch<Task>(`/tasks/${id}`, data).then((r) => r.data),
+    apiClient.put<Task>(`/tasks/${id}`, data).then((r) => r.data),
 
   deleteTask: (id: string) =>
     apiClient.delete(`/tasks/${id}`).then((r) => r.data),
