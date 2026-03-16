@@ -17,7 +17,7 @@ export function CrmFunnelWidget({ data }: CrmFunnelWidgetProps) {
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={safeData} layout="vertical">
           <XAxis type="number" hide />
-          <YAxis dataKey="stage" type="category" width={100} fontSize={12} stroke="#64748b" tickLine={false} axisLine={false} />
+          <YAxis dataKey="stage" type="category" width={130} fontSize={11} stroke="#64748b" tickLine={false} axisLine={false} tickFormatter={(v: string) => v.length > 14 ? v.slice(0, 13) + '…' : v} />
           <Tooltip
             contentStyle={{ backgroundColor: '#111827', border: '1px solid #1e293b', borderRadius: '8px' }}
             formatter={(value: number, _: string, item: { payload: { amount: number } }) => [
