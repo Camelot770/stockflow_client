@@ -14,7 +14,7 @@ import {
   getHours,
   parseISO,
 } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { ru } from 'date-fns/locale/ru';
 import { cn } from '@/lib/utils';
 import type { CalendarEvent } from '@/types';
 
