@@ -87,7 +87,38 @@ export default function ReportsPage() {
     retry: false,
   });
 
-  const pnlData = pnlRaw || getMockPnlData();
+  // Трансформируем ответ бэкенда в формат для компонента
+  const pnlData = useMemo(() => {
+    if (!pnlRaw) return getMockPnlData();
+    // Бэкенд возвращает { totalIncome, totalExpense, netProfit, margin, incomeByCategory, expenseByCategory }
+    if ('totalIncome' in pnlRaw) {
+      const raw = pnlRaw as any;
+      const categories: { category: string; type: 'income' | 'expense'; amount: number }[] = [];
+      if (raw.incomeByCategory) {
+        Object.entries(raw.incomeByCategory).forEach(([cat, amount]) => {
+          categories.push({ category: cat, type: 'income', amount: Number(amount) });
+        });
+      }
+      if (raw.expenseByCategory) {
+        Object.entries(raw.expenseByCategory).forEach(([cat, amount]) => {
+          categories.push({ category: cat, type: 'expense', amount: Number(amount) });
+        });
+      }
+      return {
+        summary: {
+          income: raw.totalIncome || 0,
+          expenses: raw.totalExpense || 0,
+          profit: raw.netProfit || 0,
+        },
+        monthly: getMockPnlData().monthly, // Бэкенд не возвращает помесячные данные — используем мок
+        categories: categories.length > 0 ? categories : getMockPnlData().categories,
+      };
+    }
+    // Если уже в нужном формате (summary, monthly, categories)
+    if (pnlRaw.summary) return pnlRaw as any;
+    return getMockPnlData();
+  }, [pnlRaw]);
+
   const cashflowData = useMemo(() => getMockCashflowData(), []);
 
   const DateRangePicker = () => (
