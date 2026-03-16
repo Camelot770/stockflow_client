@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Upload, Download, Trash2 } from 'lucide-react';
+import { Plus, Upload, Trash2 } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/shared/DataTable';
+import { ExportButton } from '@/components/shared/ExportButton';
 import { useProducts, useDeleteProduct } from '@/hooks/useProducts';
+import { exportApi } from '@/api/export';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import type { Product } from '@/types';
 
@@ -79,10 +81,10 @@ export default function ProductsPage() {
             <Upload className="h-4 w-4 mr-2" />
             Импорт
           </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Экспорт
-          </Button>
+          <ExportButton
+            onExport={exportApi.exportProducts}
+            filename="products.xlsx"
+          />
           <Button onClick={() => navigate('/products/new')}>
             <Plus className="h-4 w-4 mr-2" />
             Добавить товар

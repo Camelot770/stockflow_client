@@ -9,7 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DataTable } from '@/components/shared/DataTable';
+import { ExportButton } from '@/components/shared/ExportButton';
 import { useCustomers, useCreateCustomer } from '@/hooks/useCustomers';
+import { exportApi } from '@/api/export';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Customer } from '@/types';
@@ -41,7 +43,10 @@ export default function ContactsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold">Контакты</h1><p className="text-muted-foreground">Клиенты и контактные лица</p></div>
-        <Button onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-2" />Добавить контакт</Button>
+        <div className="flex items-center gap-2">
+          <ExportButton onExport={exportApi.exportCustomers} filename="customers.xlsx" />
+          <Button onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-2" />Добавить контакт</Button>
+        </div>
       </div>
       <DataTable columns={columns} data={data?.data || []} searchPlaceholder="Поиск контактов..." searchColumn="name" isLoading={isLoading} enableRowSelection onRowClick={(r) => navigate(`/crm/contacts/${r.id}`)} />
 

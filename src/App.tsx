@@ -39,6 +39,8 @@ const DealDetailPage = lazy(() => import('@/pages/crm/DealDetailPage'));
 const TasksPage = lazy(() => import('@/pages/crm/TasksPage'));
 const ActivitiesPage = lazy(() => import('@/pages/crm/ActivitiesPage'));
 const PipelinesPage = lazy(() => import('@/pages/crm/PipelinesPage'));
+const DealsKanbanPage = lazy(() => import('@/pages/crm/DealsKanbanPage'));
+const CalendarPage = lazy(() => import('@/pages/crm/CalendarPage'));
 
 const FinanceDashboardPage = lazy(() => import('@/pages/finance/FinanceDashboardPage'));
 const AccountsPage = lazy(() => import('@/pages/finance/AccountsPage'));
@@ -54,6 +56,8 @@ const WarehouseSettingsPage = lazy(() => import('@/pages/settings/WarehouseSetti
 const UnitsPage = lazy(() => import('@/pages/settings/UnitsPage'));
 const PriceListsPage = lazy(() => import('@/pages/settings/PriceListsPage'));
 const AuditPage = lazy(() => import('@/pages/settings/AuditPage'));
+const RolesPage = lazy(() => import('@/pages/settings/RolesPage'));
+const TelegramPage = lazy(() => import('@/pages/settings/TelegramPage'));
 
 /** Защищённый маршрут */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -143,6 +147,8 @@ export default function App() {
           <Route path="crm/deals/:id" element={<DealDetailPage />} />
           <Route path="crm/tasks" element={<TasksPage />} />
           <Route path="crm/activities" element={<ActivitiesPage />} />
+          <Route path="crm/deals/kanban" element={<DealsKanbanPage />} />
+          <Route path="crm/calendar" element={<CalendarPage />} />
           <Route path="crm/pipelines" element={<PipelinesPage />} />
 
           {/* Финансы */}
@@ -164,6 +170,8 @@ export default function App() {
           <Route path="settings/units" element={<UnitsPage />} />
           <Route path="settings/price-lists" element={<PriceListsPage />} />
           <Route path="settings/audit" element={<AuditPage />} />
+          <Route path="settings/roles" element={<RolesPage />} />
+          <Route path="settings/telegram" element={<TelegramPage />} />
         </Route>
 
         {/* Fallback */}
