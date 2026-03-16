@@ -384,13 +384,15 @@ export interface TransactionCategory {
 /** Документ */
 export interface Document {
   id: string;
-  type: 'invoice' | 'act' | 'waybill' | 'report';
+  type: 'INVOICE' | 'RECEIPT' | 'WAYBILL' | 'ACT' | 'CONTRACT' | 'RETURN_DOC' | 'OTHER';
   number: string;
-  name: string;
-  relatedId?: string;
-  relatedType?: string;
+  relatedOrderId?: string;
+  relatedOrderType?: string;
   fileUrl?: string;
+  userId: string;
+  user?: { id: string; firstName: string; lastName: string };
   createdAt: string;
+  updatedAt: string;
 }
 
 /** Запись аудита */
