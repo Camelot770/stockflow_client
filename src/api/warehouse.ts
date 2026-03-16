@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { Warehouse, StockItem, StockOperation, PaginatedResponse, ListParams } from '@/types';
+import type { Warehouse, StockItem, StockOperation, PaginatedResponse, ListParams, StockMovement } from '@/types';
 
 export const warehouseApi = {
   /** Склады */
@@ -44,7 +44,15 @@ export const warehouseApi = {
   cancelOperation: (id: string) =>
     apiClient.post(`/stock/operations/${id}/cancel`).then((r) => r.data),
 
-  /** Инвентаризация */
+  /** Движения товаров */
+  getMovements: (params?: ListParams) =>
+    apiClient.get<PaginatedResponse<StockMovement>>('/stock/movements', { params }).then((r) => r.data),
+
+  /** Корректировка остатков (инвентаризация) */
+  createAdjustment: (data: { warehouseId: string; productId: string; quantity: number; reason: string }) =>
+    apiClient.post('/stock/adjustment', data).then((r) => r.data),
+
+  /** Инвентаризация (legacy) */
   getInventory: (params?: ListParams) =>
     apiClient.get('/stock/inventory', { params }).then((r) => r.data),
 
