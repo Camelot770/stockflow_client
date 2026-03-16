@@ -15,16 +15,16 @@ import { toast } from 'sonner';
 import type { Task } from '@/types';
 
 const priorityMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'warning' }> = {
-  low: { label: 'Низкий', variant: 'secondary' },
-  medium: { label: 'Средний', variant: 'default' },
-  high: { label: 'Высокий', variant: 'warning' },
-  urgent: { label: 'Срочный', variant: 'destructive' },
+  LOW: { label: 'Низкий', variant: 'secondary' },
+  MEDIUM: { label: 'Средний', variant: 'default' },
+  HIGH: { label: 'Высокий', variant: 'warning' },
+  URGENT: { label: 'Срочный', variant: 'destructive' },
 };
 
-const statusMap: Record<string, string> = { todo: 'К выполнению', in_progress: 'В работе', done: 'Выполнена', cancelled: 'Отменена' };
+const statusMap: Record<string, string> = { NEW: 'К выполнению', IN_PROGRESS: 'В работе', COMPLETED: 'Выполнена', CANCELLED: 'Отменена' };
 
 const columns: ColumnDef<Task, unknown>[] = [
-  { id: 'status_icon', header: '', cell: ({ row }) => row.original.status === 'done' ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <Circle className="h-4 w-4 text-muted-foreground" />, size: 40 },
+  { id: 'status_icon', header: '', cell: ({ row }) => row.original.status === 'COMPLETED' ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <Circle className="h-4 w-4 text-muted-foreground" />, size: 40 },
   { accessorKey: 'title', header: 'Задача' },
   { accessorKey: 'priority', header: 'Приоритет', cell: ({ row }) => { const p = priorityMap[row.original.priority]; return <Badge variant={p?.variant}>{p?.label}</Badge>; } },
   { accessorKey: 'status', header: 'Статус', cell: ({ row }) => statusMap[row.original.status] || row.original.status },
@@ -38,11 +38,11 @@ export default function TasksPage() {
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: '', description: '', priority: 'medium' as string, dueDate: '' });
+  const [form, setForm] = useState({ title: '', description: '', priority: 'MEDIUM' as string, dueDate: '' });
 
   const handleCreate = () => {
     createTask.mutate({ title: form.title, description: form.description, priority: form.priority as Task['priority'], dueDate: form.dueDate || undefined }, {
-      onSuccess: () => { toast.success('Задача создана'); setShowCreate(false); setForm({ title: '', description: '', priority: 'medium', dueDate: '' }); },
+      onSuccess: () => { toast.success('Задача создана'); setShowCreate(false); setForm({ title: '', description: '', priority: 'MEDIUM', dueDate: '' }); },
     });
   };
 
@@ -64,7 +64,7 @@ export default function TasksPage() {
               <div className="space-y-2"><Label>Приоритет</Label>
                 <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="low">Низкий</SelectItem><SelectItem value="medium">Средний</SelectItem><SelectItem value="high">Высокий</SelectItem><SelectItem value="urgent">Срочный</SelectItem></SelectContent>
+                  <SelectContent><SelectItem value="LOW">Низкий</SelectItem><SelectItem value="MEDIUM">Средний</SelectItem><SelectItem value="HIGH">Высокий</SelectItem><SelectItem value="URGENT">Срочный</SelectItem></SelectContent>
                 </Select>
               </div>
               <div className="space-y-2"><Label>Срок</Label><Input type="date" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></div>

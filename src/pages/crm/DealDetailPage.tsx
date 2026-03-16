@@ -39,8 +39,8 @@ export default function DealDetailPage() {
         <div>
           <h1 className="text-2xl font-bold">{deal.title}</h1>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant={deal.status === 'won' ? 'success' : deal.status === 'lost' ? 'destructive' : 'secondary'}>
-              {deal.status === 'won' ? 'Выиграна' : deal.status === 'lost' ? 'Проиграна' : 'Открыта'}
+            <Badge variant={(deal.status || '').toUpperCase() === 'WON' ? 'success' : (deal.status || '').toUpperCase() === 'LOST' ? 'destructive' : 'secondary'}>
+              {(deal.status || '').toUpperCase() === 'WON' ? 'Выиграна' : (deal.status || '').toUpperCase() === 'LOST' ? 'Проиграна' : 'Открыта'}
             </Badge>
             {deal.stage && <Badge style={deal.stage.color ? { backgroundColor: deal.stage.color + '20', color: deal.stage.color } : undefined}>{deal.stage.name}</Badge>}
           </div>

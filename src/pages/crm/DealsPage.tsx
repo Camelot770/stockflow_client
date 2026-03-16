@@ -22,7 +22,7 @@ const columns: ColumnDef<Deal, unknown>[] = [
   { accessorKey: 'customer.name', header: 'Клиент', cell: ({ row }) => row.original.customer?.name || '-' },
   { accessorKey: 'amount', header: 'Сумма', cell: ({ row }) => formatCurrency(row.original.amount ?? 0) },
   { accessorKey: 'stage.name', header: 'Стадия', cell: ({ row }) => <Badge style={row.original.stage?.color ? { backgroundColor: row.original.stage.color + '20', color: row.original.stage.color } : undefined}>{row.original.stage?.name || '-'}</Badge> },
-  { accessorKey: 'status', header: 'Статус', cell: ({ row }) => <Badge variant={row.original.status === 'won' ? 'success' : row.original.status === 'lost' ? 'destructive' : 'secondary'}>{row.original.status === 'won' ? 'Выиграна' : row.original.status === 'lost' ? 'Проиграна' : 'Открыта'}</Badge> },
+  { accessorKey: 'status', header: 'Статус', cell: ({ row }) => { const s = (row.original.status || '').toUpperCase(); return <Badge variant={s === 'WON' ? 'success' : s === 'LOST' ? 'destructive' : 'secondary'}>{s === 'WON' ? 'Выиграна' : s === 'LOST' ? 'Проиграна' : 'Открыта'}</Badge>; } },
   { accessorKey: 'createdAt', header: 'Дата', cell: ({ row }) => formatDate(row.original.createdAt) },
 ];
 
