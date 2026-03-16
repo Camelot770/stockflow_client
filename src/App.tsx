@@ -30,6 +30,9 @@ const SalesPage = lazy(() => import('@/pages/sales/SalesPage'));
 const SaleCreatePage = lazy(() => import('@/pages/sales/SaleCreatePage'));
 const SaleDetailPage = lazy(() => import('@/pages/sales/SaleDetailPage'));
 const ReturnsPage = lazy(() => import('@/pages/sales/ReturnsPage'));
+const PosPage = lazy(() => import('@/pages/sales/PosPage'));
+
+const ManufacturingPage = lazy(() => import('@/pages/manufacturing/ManufacturingPage'));
 
 const CrmDashboardPage = lazy(() => import('@/pages/crm/CrmDashboardPage'));
 const ContactsPage = lazy(() => import('@/pages/crm/ContactsPage'));
@@ -138,6 +141,10 @@ export default function App() {
           <Route path="sales/new" element={<SaleCreatePage />} />
           <Route path="sales/:id" element={<SaleDetailPage />} />
           <Route path="returns" element={<ReturnsPage />} />
+          <Route path="pos" element={<PosPage />} />
+
+          {/* Производство */}
+          <Route path="manufacturing" element={<ManufacturingPage />} />
 
           {/* CRM */}
           <Route path="crm" element={<CrmDashboardPage />} />

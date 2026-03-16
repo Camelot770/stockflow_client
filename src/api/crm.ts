@@ -69,6 +69,9 @@ export const crmApi = {
   completeActivity: (id: string) =>
     apiClient.post(`/activities/${id}/complete`).then((r) => r.data),
 
+  deleteActivity: (id: string) =>
+    apiClient.delete(`/activities/${id}`).then((r) => r.data),
+
   /** Задачи */
   getTasks: (params?: ListParams) =>
     apiClient.get<PaginatedResponse<Task>>('/tasks', { params }).then((r) => r.data),

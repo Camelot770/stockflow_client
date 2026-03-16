@@ -60,3 +60,22 @@ export function useCompleteOperation() {
     },
   });
 }
+
+export function useStockMovements(params?: ListParams) {
+  return useQuery({
+    queryKey: ['stock-movements', params],
+    queryFn: () => warehouseApi.getMovements(params),
+  });
+}
+
+export function useCreateAdjustment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { warehouseId: string; productId: string; quantity: number; reason: string }) =>
+      warehouseApi.createAdjustment(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['stock'] });
+      qc.invalidateQueries({ queryKey: ['stock-movements'] });
+    },
+  });
+}

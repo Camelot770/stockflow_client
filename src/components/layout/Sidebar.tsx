@@ -5,7 +5,7 @@ import {
   Users, Handshake, ListTodo, Activity, GitBranch, Wallet, ArrowLeftRight,
   FileBarChart, FileText, BarChart3, Settings, ChevronLeft, ChevronRight,
   FolderTree, Undo2, Truck, ClipboardList, Building2, Columns, Calendar,
-  Shield, Send,
+  Shield, Send, Monitor, Cog,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/uiStore';
@@ -57,7 +57,14 @@ const navGroups: NavGroup[] = [
     title: 'Продажи',
     items: [
       { label: 'Продажи', href: '/sales', icon: <TrendingUp className="h-4 w-4" /> },
+      { label: 'Касса', href: '/pos', icon: <Monitor className="h-4 w-4" /> },
       { label: 'Возвраты', href: '/returns', icon: <Undo2 className="h-4 w-4" /> },
+    ],
+  },
+  {
+    title: 'Производство',
+    items: [
+      { label: 'Сборка', href: '/manufacturing', icon: <Cog className="h-4 w-4" /> },
     ],
   },
   {

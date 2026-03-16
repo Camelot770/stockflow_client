@@ -113,6 +113,29 @@ export interface StockItem {
   availableQuantity: number;
 }
 
+/** Движение товара */
+export interface StockMovement {
+  id: string;
+  type: 'INCOMING' | 'OUTGOING' | 'TRANSFER' | 'WRITE_OFF' | 'RETURN' | 'ADJUSTMENT';
+  productId: string;
+  product?: { id: string; name: string; sku: string };
+  variantId?: string;
+  variant?: { id: string; name: string; sku: string };
+  warehouseId: string;
+  warehouse?: { id: string; name: string };
+  fromWarehouseId?: string;
+  fromWarehouse?: { id: string; name: string };
+  toWarehouseId?: string;
+  toWarehouse?: { id: string; name: string };
+  quantity: number;
+  reason?: string;
+  userId: string;
+  user?: { id: string; firstName: string; lastName: string };
+  relatedDocumentId?: string;
+  relatedDocumentType?: string;
+  createdAt: string;
+}
+
 /** Складская операция */
 export interface StockOperation {
   id: string;
@@ -411,15 +434,19 @@ export interface AuditLog {
 export interface PriceList {
   id: string;
   name: string;
-  type: 'retail' | 'wholesale' | 'vip';
-  isActive: boolean;
-  items: PriceListItem[];
+  isDefault: boolean;
+  _count?: { items: number };
+  items?: PriceListItem[];
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface PriceListItem {
+  id: string;
+  priceListId: string;
   productId: string;
   price: number;
+  product?: { id: string; name: string; sku: string };
 }
 
 /** Уведомление */
