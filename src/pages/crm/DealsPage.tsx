@@ -10,7 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { DataTable } from '@/components/shared/DataTable';
 import { KanbanBoard } from '@/components/crm/KanbanBoard';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
+import { ExportButton } from '@/components/shared/ExportButton';
 import { useDeals, useCreateDeal, useMoveDeal, usePipelines } from '@/hooks/useDeals';
+import { exportApi } from '@/api/export';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Deal, PipelineStage } from '@/types';
@@ -68,6 +70,7 @@ export default function DealsPage() {
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold">Сделки</h1><p className="text-muted-foreground">Управление воронкой продаж</p></div>
         <div className="flex items-center gap-2">
+          <ExportButton onExport={exportApi.exportDeals} filename="deals.xlsx" />
           <div className="flex rounded-lg border border-border">
             <Button variant={viewMode === 'kanban' ? 'secondary' : 'ghost'} size="sm" onClick={() => setViewMode('kanban')}><LayoutGrid className="h-4 w-4" /></Button>
             <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="sm" onClick={() => setViewMode('list')}><List className="h-4 w-4" /></Button>

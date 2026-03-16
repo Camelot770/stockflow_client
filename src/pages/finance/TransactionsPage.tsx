@@ -4,9 +4,10 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/shared/DataTable';
+import { ExportButton } from '@/components/shared/ExportButton';
 import { useTransactions } from '@/hooks/useFinance';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { exportApi } from '@/api/export';
+import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import type { Transaction } from '@/types';
 
 const typeIcons: Record<string, React.ReactNode> = {
@@ -34,7 +35,10 @@ export default function TransactionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold">Транзакции</h1><p className="text-muted-foreground">Доходы, расходы и переводы</p></div>
-        <Button><Plus className="h-4 w-4 mr-2" />Новая транзакция</Button>
+        <div className="flex items-center gap-2">
+          <ExportButton onExport={exportApi.exportTransactions} filename="transactions.xlsx" />
+          <Button><Plus className="h-4 w-4 mr-2" />Новая транзакция</Button>
+        </div>
       </div>
       <DataTable columns={columns} data={data?.data || []} searchPlaceholder="Поиск..." isLoading={isLoading} />
     </div>

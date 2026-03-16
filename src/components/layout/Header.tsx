@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Menu, LogOut, Settings, User as UserIcon } from 'lucide-react';
+import { Search, Menu, LogOut, Settings, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -9,16 +9,19 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/stores/authStore';
 import { useUIStore } from '@/stores/uiStore';
-import { useNotificationStore } from '@/stores/notificationStore';
 import { useLogout } from '@/hooks/useAuth';
+import { useSocket } from '@/hooks/useSocket';
 import { Breadcrumbs } from './Breadcrumbs';
+import { NotificationPanel } from './NotificationPanel';
 
 export function Header() {
   const { user } = useAuthStore();
   const { setCommandMenuOpen, setSidebarMobileOpen } = useUIStore();
-  const { unreadCount } = useNotificationStore();
   const logout = useLogout();
   const navigate = useNavigate();
+
+  // Initialize WebSocket connection
+  useSocket();
 
   const initials = user ? `${user.firstName[0]}${user.lastName[0]}` : 'U';
 
@@ -52,14 +55,7 @@ export function Header() {
       </Button>
 
       {/* Уведомления */}
-      <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/settings')}>
-        <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </Button>
+      <NotificationPanel />
 
       {/* Аватар пользователя */}
       <DropdownMenu>

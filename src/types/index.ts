@@ -429,6 +429,23 @@ export interface Notification {
   createdAt: string;
 }
 
+/** Событие календаря */
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  description?: string;
+  startDate: string;
+  endDate?: string;
+  allDay: boolean;
+  color: string;
+  taskId?: string;
+  activityId?: string;
+  userId: string;
+  task?: Task;
+  activity?: Activity;
+  createdAt: string;
+}
+
 /** Пагинация */
 export interface PaginationMeta {
   total: number;

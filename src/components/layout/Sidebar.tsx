@@ -4,7 +4,8 @@ import {
   LayoutDashboard, Package, Warehouse, ShoppingCart, TrendingUp,
   Users, Handshake, ListTodo, Activity, GitBranch, Wallet, ArrowLeftRight,
   FileBarChart, FileText, BarChart3, Settings, ChevronLeft, ChevronRight,
-  FolderTree, Undo2, Truck, ClipboardList, Building2,
+  FolderTree, Undo2, Truck, ClipboardList, Building2, Columns, Calendar,
+  Shield, Send,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/uiStore';
@@ -65,6 +66,8 @@ const navGroups: NavGroup[] = [
       { label: 'Обзор CRM', href: '/crm', icon: <Building2 className="h-4 w-4" /> },
       { label: 'Контакты', href: '/crm/contacts', icon: <Users className="h-4 w-4" /> },
       { label: 'Сделки', href: '/crm/deals', icon: <Handshake className="h-4 w-4" /> },
+      { label: 'Канбан', href: '/crm/deals/kanban', icon: <Columns className="h-4 w-4" /> },
+      { label: 'Календарь', href: '/crm/calendar', icon: <Calendar className="h-4 w-4" /> },
       { label: 'Задачи', href: '/crm/tasks', icon: <ListTodo className="h-4 w-4" /> },
       { label: 'Активности', href: '/crm/activities', icon: <Activity className="h-4 w-4" /> },
       { label: 'Воронки', href: '/crm/pipelines', icon: <GitBranch className="h-4 w-4" /> },
@@ -85,6 +88,8 @@ const navGroups: NavGroup[] = [
       { label: 'Документы', href: '/documents', icon: <FileText className="h-4 w-4" /> },
       { label: 'Аналитика', href: '/analytics', icon: <BarChart3 className="h-4 w-4" /> },
       { label: 'Настройки', href: '/settings', icon: <Settings className="h-4 w-4" /> },
+      { label: 'Роли', href: '/settings/roles', icon: <Shield className="h-4 w-4" /> },
+      { label: 'Telegram', href: '/settings/telegram', icon: <Send className="h-4 w-4" /> },
     ],
   },
 ];

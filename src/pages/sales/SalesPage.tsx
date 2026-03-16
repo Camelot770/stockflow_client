@@ -5,7 +5,9 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/shared/DataTable';
+import { ExportButton } from '@/components/shared/ExportButton';
 import { useSalesOrders } from '@/hooks/useSales';
+import { exportApi } from '@/api/export';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { SalesOrder } from '@/types';
 
@@ -39,7 +41,10 @@ export default function SalesPage() {
           <h1 className="text-2xl font-bold">Продажи</h1>
           <p className="text-muted-foreground">Заказы клиентов</p>
         </div>
-        <Button onClick={() => navigate('/sales/new')}><Plus className="h-4 w-4 mr-2" />Новая продажа</Button>
+        <div className="flex items-center gap-2">
+          <ExportButton onExport={exportApi.exportSalesOrders} filename="sales-orders.xlsx" />
+          <Button onClick={() => navigate('/sales/new')}><Plus className="h-4 w-4 mr-2" />Новая продажа</Button>
+        </div>
       </div>
       <DataTable columns={columns} data={data?.data || []} searchPlaceholder="Поиск по номеру..." searchColumn="number" isLoading={isLoading} onRowClick={(r) => navigate(`/sales/${r.id}`)} />
     </div>
