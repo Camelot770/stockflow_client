@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useLogin } from '@/hooks/useAuth';
 
 const loginSchema = z.object({
-  email: z.string().email('Введите корректный email'),
+  email: z.string().min(1, 'Введите логин'),
   password: z.string().min(6, 'Минимум 6 символов'),
 });
 
@@ -44,11 +44,11 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Логин</Label>
               <Input
                 id="email"
-                type="email"
-                placeholder="name@company.ru"
+                type="text"
+                placeholder="Введите логин"
                 {...register('email')}
               />
               {errors.email && (
