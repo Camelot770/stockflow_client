@@ -85,7 +85,8 @@ const stockColumns: ColumnDef<StockItem, unknown>[] = [
     header: 'Стоимость',
     cell: ({ row }) => {
       const qty = row.original.quantity ?? 0;
-      const price = row.original.product?.purchasePrice || (row.original.product as any)?.retailPrice || 0;
+      const p = row.original.product as any;
+      const price = parseFloat(p?.costPrice) || parseFloat(p?.retailPrice) || p?.purchasePrice || 0;
       return formatCurrency(qty * Number(price));
     },
   },
@@ -199,7 +200,11 @@ export default function InventoryPage() {
   const stats = useMemo(() => {
     const totalItems = stock.reduce((sum, s) => sum + (s.quantity ?? 0), 0);
     const totalValue = stock.reduce(
-      (sum, s) => sum + (s.quantity ?? 0) * (s.product?.purchasePrice || 0),
+      (sum, s) => {
+        const p = s.product as any;
+        const price = parseFloat(p?.costPrice) || parseFloat(p?.retailPrice) || p?.purchasePrice || 0;
+        return sum + (s.quantity ?? 0) * price;
+      },
       0,
     );
     const lowStockCount = (lowStockQuery.data?.data || []).length;

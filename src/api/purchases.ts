@@ -20,13 +20,13 @@ export const purchasesApi = {
 
   /** Заказы на закупку */
   getOrders: (params?: ListParams) =>
-    apiClient.get<PaginatedResponse<PurchaseOrder>>('/purchases', { params }).then((r) => r.data),
+    apiClient.get<PaginatedResponse<PurchaseOrder>>('/purchase-orders', { params }).then((r) => r.data),
 
   getOrder: (id: string) =>
     apiClient.get<PurchaseOrder>(`/purchases/${id}`).then((r) => r.data),
 
   createOrder: (data: Partial<PurchaseOrder>) =>
-    apiClient.post<PurchaseOrder>('/purchases', data).then((r) => r.data),
+    apiClient.post<PurchaseOrder>('/purchase-orders', data).then((r) => r.data),
 
   updateOrder: (id: string, data: Partial<PurchaseOrder>) =>
     apiClient.patch<PurchaseOrder>(`/purchases/${id}`, data).then((r) => r.data),

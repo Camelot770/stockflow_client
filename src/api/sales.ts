@@ -4,13 +4,13 @@ import type { SalesOrder, Return, PriceList, PaginatedResponse, ListParams } fro
 export const salesApi = {
   /** Заказы на продажу */
   getOrders: (params?: ListParams) =>
-    apiClient.get<PaginatedResponse<SalesOrder>>('/sales', { params }).then((r) => r.data),
+    apiClient.get<PaginatedResponse<SalesOrder>>('/sales-orders', { params }).then((r) => r.data),
 
   getOrder: (id: string) =>
     apiClient.get<SalesOrder>(`/sales/${id}`).then((r) => r.data),
 
   createOrder: (data: Partial<SalesOrder>) =>
-    apiClient.post<SalesOrder>('/sales', data).then((r) => r.data),
+    apiClient.post<SalesOrder>('/sales-orders', data).then((r) => r.data),
 
   updateOrder: (id: string, data: Partial<SalesOrder>) =>
     apiClient.patch<SalesOrder>(`/sales/${id}`, data).then((r) => r.data),
