@@ -16,7 +16,7 @@ interface KanbanColumnProps {
 
 export function KanbanColumn({ stage, deals, onDealClick, onAddDeal }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
-  const totalAmount = (deals || []).reduce((sum, d) => sum + (d.amount || 0), 0);
+  const totalAmount = (deals || []).reduce((sum, d) => sum + (parseFloat(String(d.amount)) || 0), 0);
 
   return (
     <div
