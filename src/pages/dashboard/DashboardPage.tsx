@@ -13,40 +13,27 @@ import { TopProductsWidget } from '@/components/dashboard/widgets/TopProductsWid
 import { TopCustomersWidget } from '@/components/dashboard/widgets/TopCustomersWidget';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 
-/** Моковые данные для демонстрации при отсутствии API */
-const mockStats = {
-  revenue: 2450000,
-  revenueTrend: 12.5,
-  orders: 156,
-  ordersTrend: 8.3,
-  averageCheck: 15705,
-  averageCheckTrend: 3.8,
-  newCustomers: 23,
-  newCustomersTrend: -2.1,
+/** Пустые данные при отсутствии данных с API */
+const emptyStats = {
+  revenue: 0,
+  revenueTrend: 0,
+  orders: 0,
+  ordersTrend: 0,
+  averageCheck: 0,
+  averageCheckTrend: 0,
+  newCustomers: 0,
+  newCustomersTrend: 0,
   lowStockProducts: [],
   todayTasks: [],
   topProducts: [],
   topCustomers: [],
-  dealsByStage: [
-    { stage: 'Новые', count: 12, amount: 340000 },
-    { stage: 'В работе', count: 8, amount: 520000 },
-    { stage: 'Предложение', count: 5, amount: 280000 },
-    { stage: 'Согласование', count: 3, amount: 190000 },
-    { stage: 'Закрыто', count: 15, amount: 870000 },
-  ],
-  revenueChart: [
-    { date: 'Янв', revenue: 1800000, expenses: 1200000 },
-    { date: 'Фев', revenue: 2100000, expenses: 1350000 },
-    { date: 'Мар', revenue: 1950000, expenses: 1280000 },
-    { date: 'Апр', revenue: 2300000, expenses: 1450000 },
-    { date: 'Май', revenue: 2150000, expenses: 1380000 },
-    { date: 'Июн', revenue: 2450000, expenses: 1520000 },
-  ],
+  dealsByStage: [],
+  revenueChart: [],
 };
 
 export default function DashboardPage() {
   const { data: stats, isLoading } = useDashboardStats();
-  const s = stats && typeof stats === 'object' && 'revenue' in stats ? stats : mockStats;
+  const s = stats && typeof stats === 'object' && 'revenue' in stats ? stats : emptyStats;
 
   if (isLoading) return <LoadingSkeleton type="page" />;
 
