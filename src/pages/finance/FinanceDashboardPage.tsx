@@ -9,7 +9,7 @@ import { formatCurrency } from '@/lib/utils';
 export default function FinanceDashboardPage() {
   const { data: rawAccounts } = useFinanceAccounts();
   const accounts = Array.isArray(rawAccounts) ? rawAccounts : Array.isArray((rawAccounts as any)?.data) ? (rawAccounts as any).data : [];
-  const totalBalance = accounts.reduce((s: number, a: any) => s + (a.balance ?? 0), 0);
+  const totalBalance = accounts.reduce((s: number, a: any) => s + (parseFloat(a.balance) || 0), 0);
 
   const monthRange = useMemo(() => {
     const now = new Date();
@@ -20,7 +20,7 @@ export default function FinanceDashboardPage() {
 
   const { data: pnlData } = usePnLReport(monthRange);
   const monthlyIncome = (pnlData as any)?.totalIncome ?? (pnlData as any)?.income ?? 0;
-  const monthlyExpenses = (pnlData as any)?.totalExpenses ?? (pnlData as any)?.expenses ?? 0;
+  const monthlyExpenses = (pnlData as any)?.totalExpense ?? (pnlData as any)?.totalExpenses ?? (pnlData as any)?.expenses ?? 0;
   const monthlyProfit = (pnlData as any)?.profit ?? (pnlData as any)?.netProfit ?? (monthlyIncome - monthlyExpenses);
 
   return (
@@ -50,7 +50,7 @@ export default function FinanceDashboardPage() {
                       <p className="text-xs text-muted-foreground">{acc.type === 'bank' ? 'Банковский' : acc.type === 'cash' ? 'Наличные' : 'Карта'}</p>
                     </div>
                   </div>
-                  <p className="text-lg font-bold">{formatCurrency(acc.balance)}</p>
+                  <p className="text-lg font-bold">{formatCurrency(parseFloat(acc.balance) || 0)}</p>
                 </div>
               ))}
             </div>

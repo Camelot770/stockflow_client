@@ -25,13 +25,14 @@ export function formatDateTime(date: string | Date): string {
 }
 
 /** Форматирование валюты (рубли) */
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number | string): string {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
   return new Intl.NumberFormat('ru-RU', {
     style: 'currency',
     currency: 'RUB',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(isNaN(num) ? 0 : num);
 }
 
 /** Форматирование числа в русском формате */

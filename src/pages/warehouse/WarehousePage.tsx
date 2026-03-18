@@ -33,10 +33,10 @@ const columns: ColumnDef<StockItem, unknown>[] = [
     cell: ({ row }) => formatNumber(row.original.reservedQuantity ?? 0),
   },
   {
-    accessorKey: 'availableQuantity',
+    id: 'availableQuantity',
     header: 'Доступно',
     cell: ({ row }) => {
-      const avail = row.original.availableQuantity ?? 0;
+      const avail = (row.original.quantity ?? 0) - (row.original.reserved ?? 0);
       const min = row.original.product?.minStock || 0;
       return (
         <Badge variant={avail <= min ? 'destructive' : 'secondary'}>
