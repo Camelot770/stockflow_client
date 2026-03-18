@@ -223,12 +223,11 @@ export default function AnalyticsPage() {
     retry: false,
   });
 
-  // Use API data or fallback to mocks (ensure arrays are always arrays)
-  const overviewData = useMemo(() => getMockOverviewData(), []);
+  // Use real API data only — no mock/fake data
+  const overviewData: { month: string; revenue: number; orders: number; expenses: number }[] = [];
   const pnlData = useMemo(() => {
     const raw = pnlRaw as any;
     if (raw && typeof raw === 'object' && ('totalIncome' in raw || 'summary' in raw)) {
-      // Normalize API response to match expected shape
       const summary = raw.summary || {
         income: raw.totalIncome ?? 0,
         expenses: raw.totalExpense ?? raw.totalExpenses ?? 0,
@@ -240,14 +239,14 @@ export default function AnalyticsPage() {
       ];
       return { summary, monthly: raw.monthly || [], categories };
     }
-    return getMockPnlData();
+    return { summary: { income: 0, expenses: 0, profit: 0 }, monthly: [], categories: [] };
   }, [pnlRaw]);
   const managersArr = Array.isArray(managersRaw) ? managersRaw : Array.isArray((managersRaw as any)?.data) ? (managersRaw as any).data : null;
-  const managersData = managersArr || getMockManagerData();
+  const managersData = managersArr || [];
   const abcArr = Array.isArray(abcRaw) ? abcRaw : Array.isArray((abcRaw as any)?.data) ? (abcRaw as any).data : null;
-  const abcData = abcArr || getMockAbcData();
-  const forecastData = (forecastRaw && typeof forecastRaw === 'object' && 'data' in (forecastRaw as any)) ? forecastRaw : getMockForecastData();
-  const customersData = (customersRaw && typeof customersRaw === 'object' && 'topCustomers' in (customersRaw as any)) ? customersRaw : getMockCustomerData();
+  const abcData = abcArr || [];
+  const forecastData = (forecastRaw && typeof forecastRaw === 'object' && 'data' in (forecastRaw as any)) ? forecastRaw : { trend: 'stable', projectedRevenue: 0, data: [] };
+  const customersData = (customersRaw && typeof customersRaw === 'object' && 'topCustomers' in (customersRaw as any)) ? customersRaw : { topCustomers: [], segments: [], newVsReturning: [] };
 
   const totalRevenue = overviewData.reduce((s, d) => s + d.revenue, 0);
   const totalOrders = overviewData.reduce((s, d) => s + d.orders, 0);
