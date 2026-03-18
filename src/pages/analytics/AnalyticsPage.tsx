@@ -223,20 +223,23 @@ export default function AnalyticsPage() {
     retry: false,
   });
 
-  // Use API data or fallback to mocks
+  // Use API data or fallback to mocks (ensure arrays are always arrays)
   const overviewData = useMemo(() => getMockOverviewData(), []);
-  const pnlData = pnlRaw || getMockPnlData();
-  const managersData = managersRaw || getMockManagerData();
-  const abcData = abcRaw || getMockAbcData();
-  const forecastData = forecastRaw || getMockForecastData();
-  const customersData = customersRaw || getMockCustomerData();
+  const pnlData = (pnlRaw && typeof pnlRaw === 'object' && !Array.isArray(pnlRaw) && 'totalIncome' in (pnlRaw as any)) ? pnlRaw : getMockPnlData();
+  const managersArr = Array.isArray(managersRaw) ? managersRaw : Array.isArray((managersRaw as any)?.data) ? (managersRaw as any).data : null;
+  const managersData = managersArr || getMockManagerData();
+  const abcArr = Array.isArray(abcRaw) ? abcRaw : Array.isArray((abcRaw as any)?.data) ? (abcRaw as any).data : null;
+  const abcData = abcArr || getMockAbcData();
+  const forecastData = (forecastRaw && typeof forecastRaw === 'object' && 'data' in (forecastRaw as any)) ? forecastRaw : getMockForecastData();
+  const customersData = (customersRaw && typeof customersRaw === 'object' && 'topCustomers' in (customersRaw as any)) ? customersRaw : getMockCustomerData();
 
   const totalRevenue = overviewData.reduce((s, d) => s + d.revenue, 0);
   const totalOrders = overviewData.reduce((s, d) => s + d.orders, 0);
   const avgCheck = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-  const managerTotal = (managersData as any[]).reduce((s: number, m: any) => s + m.revenue, 0);
-  const managerPieData = (managersData as any[]).map((m: any, i: number) => ({
+  const safeManagers = Array.isArray(managersData) ? managersData : [];
+  const managerTotal = safeManagers.reduce((s: number, m: any) => s + (parseFloat(String(m.revenue)) || 0), 0);
+  const managerPieData = safeManagers.map((m: any, i: number) => ({
     name: m.name,
     value: m.revenue,
     color: PIE_COLORS[i % PIE_COLORS.length],
