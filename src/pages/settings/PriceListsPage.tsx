@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Star, ChevronDown, ChevronRight, Package } from 'lucide-react';
+import { Plus, Trash2, Star, ChevronDown, ChevronRight, Package, Pencil, Save, X } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +39,7 @@ export default function PriceListsPage() {
   const [editForm, setEditForm] = useState({ name: '', isDefault: false });
 
   // Item editing state
+  const [isEditingItems, setIsEditingItems] = useState(false);
   const [editingItems, setEditingItems] = useState<{ productId: string; price: string }[]>([]);
 
   const priceLists: PriceList[] = Array.isArray(data) ? data : Array.isArray((data as any)?.data) ? (data as any).data : [];
@@ -101,11 +102,35 @@ export default function PriceListsPage() {
   };
 
   const handleToggleExpand = (pl: PriceList) => {
+    setIsEditingItems(false);
+    setEditingItems([]);
     if (expandedId === pl.id) {
       setExpandedId(null);
     } else {
       setExpandedId(pl.id);
     }
+  };
+
+  const handleStartEditItems = (items: PriceListItem[]) => {
+    setEditingItems(
+      items.map((item) => ({ productId: item.productId, price: String(item.price) })),
+    );
+    setIsEditingItems(true);
+  };
+
+  const handleCancelEditItems = () => {
+    setIsEditingItems(false);
+    setEditingItems([]);
+  };
+
+  const handleEditItemPrice = (index: number, price: string) => {
+    setEditingItems((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, price } : item)),
+    );
+  };
+
+  const handleRemoveEditItem = (index: number) => {
+    setEditingItems((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSaveItems = () => {
@@ -116,7 +141,11 @@ export default function PriceListsPage() {
     setItems.mutate(
       { id: expandedId, items },
       {
-        onSuccess: () => toast.success('Позиции сохранены'),
+        onSuccess: () => {
+          toast.success('Позиции сохранены');
+          setIsEditingItems(false);
+          setEditingItems([]);
+        },
         onError: () => toast.error('Ошибка при сохранении позиций'),
       },
     );
@@ -220,6 +249,36 @@ export default function PriceListsPage() {
             <h3 className="text-sm font-semibold">
               Позиции прайс-листа ({items.length})
             </h3>
+            {!isLoadingDetail && items.length > 0 && !isEditingItems && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleStartEditItems(items)}
+              >
+                <Pencil className="h-4 w-4 mr-2" />
+                Редактировать позиции
+              </Button>
+            )}
+            {isEditingItems && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCancelEditItems}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Отмена
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveItems}
+                  disabled={setItems.isPending}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {setItems.isPending ? 'Сохранение...' : 'Сохранить'}
+                </Button>
+              </div>
+            )}
           </div>
 
           {isLoadingDetail ? (
@@ -233,6 +292,52 @@ export default function PriceListsPage() {
               <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">Нет позиций в прайс-листе</p>
               <p className="text-xs mt-1">Добавьте товары через API или импорт</p>
+            </div>
+          ) : isEditingItems ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Артикул</TableHead>
+                    <TableHead>Товар</TableHead>
+                    <TableHead className="text-right">Цена</TableHead>
+                    <TableHead className="w-10" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {editingItems.map((editItem, index) => {
+                    const originalItem = items.find((i) => i.productId === editItem.productId);
+                    return (
+                      <TableRow key={editItem.productId}>
+                        <TableCell className="text-muted-foreground font-mono text-sm">
+                          {originalItem?.product?.sku ?? '-'}
+                        </TableCell>
+                        <TableCell>{originalItem?.product?.name ?? editItem.productId}</TableCell>
+                        <TableCell className="text-right">
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={editItem.price}
+                            onChange={(e) => handleEditItemPrice(index, e.target.value)}
+                            className="w-32 ml-auto text-right"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleRemoveEditItem(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </div>
           ) : (
             <div className="rounded-md border">

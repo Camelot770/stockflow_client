@@ -157,9 +157,43 @@ export default function ProductDetailPage() {
                   <p className="text-2xl font-bold">{formatCurrency((product.totalStock ?? 0) * (product.purchasePrice ?? 0))}</p>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Детализация по складам загружается из API
-              </p>
+              <Separator className="my-4" />
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Показатель</TableHead>
+                    <TableHead className="text-right">Значение</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Текущий остаток</TableCell>
+                    <TableCell className="text-right font-medium">{formatNumber(product.totalStock ?? 0)} {product.unit?.shortName || 'шт.'}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Минимальный остаток</TableCell>
+                    <TableCell className="text-right font-medium">{formatNumber(product.minStock ?? 0)} {product.unit?.shortName || 'шт.'}</TableCell>
+                  </TableRow>
+                  {product.maxStock != null && (
+                    <TableRow>
+                      <TableCell>Максимальный остаток</TableCell>
+                      <TableCell className="text-right font-medium">{formatNumber(product.maxStock)} {product.unit?.shortName || 'шт.'}</TableCell>
+                    </TableRow>
+                  )}
+                  <TableRow>
+                    <TableCell>Статус остатка</TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant={(product.totalStock ?? 0) <= (product.minStock ?? 0) ? 'destructive' : 'success'}>
+                        {(product.totalStock ?? 0) <= 0
+                          ? 'Нет в наличии'
+                          : (product.totalStock ?? 0) <= (product.minStock ?? 0)
+                            ? 'Ниже минимума'
+                            : 'В наличии'}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
@@ -167,9 +201,9 @@ export default function ProductDetailPage() {
         <TabsContent value="suppliers">
           <Card>
             <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Поставщики загружаются из API
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-muted-foreground text-sm">Нет связанных поставщиков</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
