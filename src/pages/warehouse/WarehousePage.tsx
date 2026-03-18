@@ -48,7 +48,11 @@ const columns: ColumnDef<StockItem, unknown>[] = [
   {
     id: 'value',
     header: 'Стоимость',
-    cell: ({ row }) => formatCurrency((row.original.quantity ?? 0) * (row.original.product?.purchasePrice || 0)),
+    cell: ({ row }) => {
+      const p = row.original.product;
+      const price = parseFloat(p?.costPrice) || parseFloat(p?.retailPrice) || p?.purchasePrice || 0;
+      return formatCurrency((row.original.quantity ?? 0) * price);
+    },
   },
 ];
 

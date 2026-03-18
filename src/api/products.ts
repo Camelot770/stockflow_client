@@ -1,18 +1,47 @@
 import apiClient from './client';
 import type { Product, Category, Unit, PaginatedResponse, ListParams } from '@/types';
 
+/** Map backend product fields to frontend Product interface */
+function mapProduct(raw: any): Product {
+  if (!raw) return raw;
+  return {
+    ...raw,
+    purchasePrice: parseFloat(raw.costPrice) || raw.purchasePrice || 0,
+    sellingPrice: parseFloat(raw.retailPrice) || raw.sellingPrice || 0,
+    totalStock: Array.isArray(raw.stockEntries)
+      ? raw.stockEntries.reduce((sum: number, e: any) => sum + (e.quantity ?? 0), 0)
+      : raw.totalStock ?? 0,
+  };
+}
+
 export const productsApi = {
   getAll: (params?: ListParams) =>
-    apiClient.get<PaginatedResponse<Product>>('/products', { params }).then((r) => r.data),
+    apiClient.get<PaginatedResponse<Product>>('/products', { params }).then((r) => {
+      const res = r.data as any;
+      if (Array.isArray(res?.data)) {
+        res.data = res.data.map(mapProduct);
+      } else if (Array.isArray(res)) {
+        return res.map(mapProduct);
+      }
+      return res;
+    }),
 
   getById: (id: string) =>
-    apiClient.get<Product>(`/products/${id}`).then((r) => r.data),
+    apiClient.get<Product>(`/products/${id}`).then((r) => mapProduct(r.data)),
 
   create: (data: Partial<Product>) =>
-    apiClient.post<Product>('/products', data).then((r) => r.data),
+    apiClient.post<Product>('/products', {
+      ...data,
+      costPrice: data.purchasePrice,
+      retailPrice: data.sellingPrice,
+    }).then((r) => mapProduct(r.data)),
 
   update: (id: string, data: Partial<Product>) =>
-    apiClient.patch<Product>(`/products/${id}`, data).then((r) => r.data),
+    apiClient.patch<Product>(`/products/${id}`, {
+      ...data,
+      costPrice: data.purchasePrice ?? (data as any).costPrice,
+      retailPrice: data.sellingPrice ?? (data as any).retailPrice,
+    }).then((r) => mapProduct(r.data)),
 
   delete: (id: string) =>
     apiClient.delete(`/products/${id}`).then((r) => r.data),
