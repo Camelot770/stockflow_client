@@ -4,10 +4,10 @@ import type { CompanySettings, User, AuditLog, PaginatedResponse, ListParams } f
 export const settingsApi = {
   /** Настройки компании */
   getCompanySettings: () =>
-    apiClient.get<CompanySettings>('/company').then((r) => r.data),
+    apiClient.get<CompanySettings>('/company-settings').then((r) => r.data),
 
   updateCompanySettings: (data: Partial<CompanySettings>) =>
-    apiClient.put<CompanySettings>('/company', data).then((r) => r.data),
+    apiClient.put<CompanySettings>('/company-settings', data).then((r) => r.data),
 
   /** Пользователи */
   getUsers: (params?: ListParams) =>
