@@ -16,14 +16,19 @@ import { formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { User } from '@/types';
 
-const roleLabels: Record<string, string> = { owner: 'Владелец', admin: 'Администратор', manager: 'Менеджер', viewer: 'Наблюдатель' };
+const roleLabels: Record<string, string> = {
+  OWNER: 'Владелец', ADMIN: 'Администратор', MANAGER: 'Менеджер',
+  WAREHOUSE_WORKER: 'Кладовщик', ACCOUNTANT: 'Бухгалтер',
+  owner: 'Владелец', admin: 'Администратор', manager: 'Менеджер',
+  warehouse_worker: 'Кладовщик', accountant: 'Бухгалтер', viewer: 'Наблюдатель',
+};
 
 export default function UsersPage() {
   const queryClient = useQueryClient();
   const { data, isLoading } = useUsers();
   const createUser = useCreateUser();
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', role: 'manager' as string });
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', role: 'MANAGER' as string, customRoleId: '' });
 
   const { data: customRoles = [] } = useQuery<CustomRole[]>({
     queryKey: ['rbac-roles'],
@@ -42,8 +47,19 @@ export default function UsersPage() {
   });
 
   const handleCreate = () => {
-    createUser.mutate(form as any, {
-      onSuccess: () => { toast.success('Пользователь создан'); setShowCreate(false); },
+    const payload = {
+      ...form,
+      customRoleId: form.customRoleId || undefined,
+    };
+    createUser.mutate(payload as any, {
+      onSuccess: () => {
+        toast.success('Пользователь создан');
+        setShowCreate(false);
+        setForm({ firstName: '', lastName: '', email: '', password: '', role: 'MANAGER', customRoleId: '' });
+      },
+      onError: (err: any) => {
+        toast.error(err?.response?.data?.error?.message || 'Ошибка при создании пользователя');
+      },
     });
   };
 
@@ -68,7 +84,7 @@ export default function UsersPage() {
     {
       accessorKey: 'role',
       header: 'Системная роль',
-      cell: ({ row }) => <Badge variant="secondary">{roleLabels[row.original.role]}</Badge>,
+      cell: ({ row }) => <Badge variant="secondary">{roleLabels[row.original.role] || row.original.role}</Badge>,
     },
     {
       id: 'customRole',
@@ -141,37 +157,59 @@ export default function UsersPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Имя</Label>
-                <Input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
+                <Label>Имя *</Label>
+                <Input placeholder="Имя" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>Фамилия</Label>
-                <Input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
+                <Label>Фамилия *</Label>
+                <Input placeholder="Фамилия" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Email</Label>
-              <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Label>Логин *</Label>
+              <Input placeholder="Логин для входа" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>Пароль</Label>
-              <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+              <Label>Пароль *</Label>
+              <Input type="password" placeholder="Минимум 6 символов" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>Роль</Label>
+              <Label>Системная роль</Label>
               <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Администратор</SelectItem>
-                  <SelectItem value="manager">Менеджер</SelectItem>
-                  <SelectItem value="viewer">Наблюдатель</SelectItem>
+                  <SelectItem value="ADMIN">Администратор</SelectItem>
+                  <SelectItem value="MANAGER">Менеджер</SelectItem>
+                  <SelectItem value="WAREHOUSE_WORKER">Кладовщик</SelectItem>
+                  <SelectItem value="ACCOUNTANT">Бухгалтер</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+            {customRoles.length > 0 && (
+              <div className="space-y-2">
+                <Label>Роль доступа</Label>
+                <Select value={form.customRoleId || '_none'} onValueChange={(v) => setForm({ ...form, customRoleId: v === '_none' ? '' : v })}>
+                  <SelectTrigger><SelectValue placeholder="Без роли" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_none">Без роли</SelectItem>
+                    {customRoles.map(role => (
+                      <SelectItem key={role.id} value={role.id}>
+                        <div className="flex items-center gap-1">
+                          <Shield className="h-3 w-3" />
+                          {role.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)}>Отмена</Button>
-            <Button onClick={handleCreate} disabled={!form.email || !form.password}>Создать</Button>
+            <Button onClick={handleCreate} disabled={!form.email || !form.password || !form.firstName || !form.lastName || createUser.isPending}>
+              {createUser.isPending ? 'Создание...' : 'Создать'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
