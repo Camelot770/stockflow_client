@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wallet, ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatCard } from '@/components/shared/StatCard';
-import { useFinanceAccounts } from '@/hooks/useFinance';
+import { useFinanceAccounts, usePnLReport } from '@/hooks/useFinance';
 import { formatCurrency } from '@/lib/utils';
 
 export default function FinanceDashboardPage() {
@@ -11,15 +11,27 @@ export default function FinanceDashboardPage() {
   const accounts = Array.isArray(rawAccounts) ? rawAccounts : Array.isArray((rawAccounts as any)?.data) ? (rawAccounts as any).data : [];
   const totalBalance = accounts.reduce((s: number, a: any) => s + (a.balance ?? 0), 0);
 
+  const monthRange = useMemo(() => {
+    const now = new Date();
+    const from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    const to = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+    return { from, to };
+  }, []);
+
+  const { data: pnlData } = usePnLReport(monthRange);
+  const monthlyIncome = (pnlData as any)?.totalIncome ?? (pnlData as any)?.income ?? 0;
+  const monthlyExpenses = (pnlData as any)?.totalExpenses ?? (pnlData as any)?.expenses ?? 0;
+  const monthlyProfit = (pnlData as any)?.profit ?? (pnlData as any)?.netProfit ?? (monthlyIncome - monthlyExpenses);
+
   return (
     <div className="space-y-6">
       <div><h1 className="text-2xl font-bold">Финансы</h1><p className="text-muted-foreground">Обзор финансового состояния</p></div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Общий баланс" value={formatCurrency(totalBalance)} icon={<Wallet className="h-6 w-6" />} />
-        <StatCard title="Доходы (мес)" value={formatCurrency(0)} trend={0} icon={<ArrowUpRight className="h-6 w-6" />} />
-        <StatCard title="Расходы (мес)" value={formatCurrency(0)} trend={0} icon={<ArrowDownRight className="h-6 w-6" />} />
-        <StatCard title="Прибыль (мес)" value={formatCurrency(0)} trend={0} icon={<TrendingUp className="h-6 w-6" />} />
+        <StatCard title="Доходы (мес)" value={formatCurrency(monthlyIncome)} icon={<ArrowUpRight className="h-6 w-6" />} />
+        <StatCard title="Расходы (мес)" value={formatCurrency(monthlyExpenses)} icon={<ArrowDownRight className="h-6 w-6" />} />
+        <StatCard title="Прибыль (мес)" value={formatCurrency(monthlyProfit)} icon={<TrendingUp className="h-6 w-6" />} />
       </div>
 
       <Card>

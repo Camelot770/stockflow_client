@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/shared/DataTable';
 import { ExportButton } from '@/components/shared/ExportButton';
+import { toast } from 'sonner';
 import { useProducts, useDeleteProduct } from '@/hooks/useProducts';
 import { exportApi } from '@/api/export';
 import { formatCurrency, formatNumber } from '@/lib/utils';
@@ -77,7 +78,7 @@ export default function ProductsPage() {
           <p className="text-muted-foreground">Управление каталогом товаров</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => toast.info('Импорт товаров скоро будет доступен')}>
             <Upload className="h-4 w-4 mr-2" />
             Импорт
           </Button>
