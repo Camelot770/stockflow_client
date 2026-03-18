@@ -225,7 +225,23 @@ export default function AnalyticsPage() {
 
   // Use API data or fallback to mocks (ensure arrays are always arrays)
   const overviewData = useMemo(() => getMockOverviewData(), []);
-  const pnlData = (pnlRaw && typeof pnlRaw === 'object' && !Array.isArray(pnlRaw) && 'totalIncome' in (pnlRaw as any)) ? pnlRaw : getMockPnlData();
+  const pnlData = useMemo(() => {
+    const raw = pnlRaw as any;
+    if (raw && typeof raw === 'object' && ('totalIncome' in raw || 'summary' in raw)) {
+      // Normalize API response to match expected shape
+      const summary = raw.summary || {
+        income: raw.totalIncome ?? 0,
+        expenses: raw.totalExpense ?? raw.totalExpenses ?? 0,
+        profit: raw.netProfit ?? raw.profit ?? ((raw.totalIncome ?? 0) - (raw.totalExpense ?? 0)),
+      };
+      const categories = raw.categories || [
+        ...Object.entries(raw.incomeByCategory || {}).map(([k, v]) => ({ category: k, type: 'income' as const, amount: v })),
+        ...Object.entries(raw.expenseByCategory || {}).map(([k, v]) => ({ category: k, type: 'expense' as const, amount: v })),
+      ];
+      return { summary, monthly: raw.monthly || [], categories };
+    }
+    return getMockPnlData();
+  }, [pnlRaw]);
   const managersArr = Array.isArray(managersRaw) ? managersRaw : Array.isArray((managersRaw as any)?.data) ? (managersRaw as any).data : null;
   const managersData = managersArr || getMockManagerData();
   const abcArr = Array.isArray(abcRaw) ? abcRaw : Array.isArray((abcRaw as any)?.data) ? (abcRaw as any).data : null;
