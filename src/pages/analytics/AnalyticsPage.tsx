@@ -314,25 +314,21 @@ export default function AnalyticsPage() {
             <MetricCard
               title="Выручка за год"
               value={formatCurrency(totalRevenue)}
-              trend={12.5}
               icon={<DollarSign className="h-5 w-5 text-primary" />}
             />
             <MetricCard
               title="Заказов"
               value={formatNumber(totalOrders)}
-              trend={8.3}
               icon={<ShoppingCart className="h-5 w-5 text-primary" />}
             />
             <MetricCard
               title="Средний чек"
               value={formatCurrency(avgCheck)}
-              trend={3.7}
               icon={<TrendingUp className="h-5 w-5 text-primary" />}
             />
             <MetricCard
               title="Рост к прошлому году"
-              value="+12.5%"
-              trend={12.5}
+              value={totalRevenue > 0 ? '—' : '—'}
               icon={<TrendingUp className="h-5 w-5 text-primary" />}
             />
           </div>
@@ -382,7 +378,7 @@ export default function AnalyticsPage() {
             <MetricCard
               title="Чистая прибыль"
               value={formatCurrency(pnlData.summary.profit)}
-              trend={pnlData.summary.profit > 0 ? 15.2 : -5.1}
+              trend={undefined}
               icon={<DollarSign className="h-5 w-5 text-primary" />}
             />
           </div>
