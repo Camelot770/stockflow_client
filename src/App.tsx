@@ -87,6 +87,24 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/** Маршрут с проверкой прав доступа */
+function PermissionGate({ permission, children }: { permission: string; children: React.ReactNode }) {
+  const user = useAuthStore((s) => s.user);
+  const role = user?.role?.toUpperCase() || '';
+
+  if (role === 'OWNER' || role === 'ADMIN') return <>{children}</>;
+
+  const permissions: string[] = (user as any)?.customRole?.permissions || [];
+  if (permissions.includes(permission)) return <>{children}</>;
+
+  return (
+    <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+      <h2 className="text-xl font-semibold mb-2">Доступ запрещён</h2>
+      <p className="text-muted-foreground">У вас нет прав для просмотра этого раздела.</p>
+    </div>
+  );
+}
+
 /** Публичный маршрут (редирект если авторизован) */
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore();
@@ -120,67 +138,67 @@ export default function App() {
           <Route index element={<DashboardPage />} />
 
           {/* Товары */}
-          <Route path="products" element={<ProductsPage />} />
-          <Route path="products/new" element={<ProductCreatePage />} />
-          <Route path="products/:id" element={<ProductDetailPage />} />
-          <Route path="products/:id/edit" element={<ProductEditPage />} />
-          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="products" element={<PermissionGate permission="products:read"><ProductsPage /></PermissionGate>} />
+          <Route path="products/new" element={<PermissionGate permission="products:create"><ProductCreatePage /></PermissionGate>} />
+          <Route path="products/:id" element={<PermissionGate permission="products:read"><ProductDetailPage /></PermissionGate>} />
+          <Route path="products/:id/edit" element={<PermissionGate permission="products:update"><ProductEditPage /></PermissionGate>} />
+          <Route path="categories" element={<PermissionGate permission="products:read"><CategoriesPage /></PermissionGate>} />
 
           {/* Склад */}
-          <Route path="warehouse" element={<WarehousePage />} />
-          <Route path="warehouse/operations" element={<OperationsPage />} />
-          <Route path="warehouse/operations/new" element={<OperationCreatePage />} />
-          <Route path="warehouse/inventory" element={<InventoryPage />} />
+          <Route path="warehouse" element={<PermissionGate permission="warehouse:read"><WarehousePage /></PermissionGate>} />
+          <Route path="warehouse/operations" element={<PermissionGate permission="warehouse:read"><OperationsPage /></PermissionGate>} />
+          <Route path="warehouse/operations/new" element={<PermissionGate permission="warehouse:manage"><OperationCreatePage /></PermissionGate>} />
+          <Route path="warehouse/inventory" element={<PermissionGate permission="warehouse:read"><InventoryPage /></PermissionGate>} />
 
           {/* Закупки */}
-          <Route path="purchases" element={<PurchasesPage />} />
-          <Route path="purchases/new" element={<PurchaseCreatePage />} />
-          <Route path="purchases/:id" element={<PurchaseDetailPage />} />
-          <Route path="suppliers" element={<SuppliersPage />} />
+          <Route path="purchases" element={<PermissionGate permission="purchases:read"><PurchasesPage /></PermissionGate>} />
+          <Route path="purchases/new" element={<PermissionGate permission="purchases:create"><PurchaseCreatePage /></PermissionGate>} />
+          <Route path="purchases/:id" element={<PermissionGate permission="purchases:read"><PurchaseDetailPage /></PermissionGate>} />
+          <Route path="suppliers" element={<PermissionGate permission="purchases:read"><SuppliersPage /></PermissionGate>} />
 
           {/* Продажи */}
-          <Route path="sales" element={<SalesPage />} />
-          <Route path="sales/new" element={<SaleCreatePage />} />
-          <Route path="sales/:id" element={<SaleDetailPage />} />
-          <Route path="returns" element={<ReturnsPage />} />
-          <Route path="pos" element={<PosPage />} />
+          <Route path="sales" element={<PermissionGate permission="sales:read"><SalesPage /></PermissionGate>} />
+          <Route path="sales/new" element={<PermissionGate permission="sales:create"><SaleCreatePage /></PermissionGate>} />
+          <Route path="sales/:id" element={<PermissionGate permission="sales:read"><SaleDetailPage /></PermissionGate>} />
+          <Route path="returns" element={<PermissionGate permission="sales:read"><ReturnsPage /></PermissionGate>} />
+          <Route path="pos" element={<PermissionGate permission="sales:read"><PosPage /></PermissionGate>} />
 
           {/* Производство */}
-          <Route path="manufacturing" element={<ManufacturingPage />} />
+          <Route path="manufacturing" element={<PermissionGate permission="warehouse:manage"><ManufacturingPage /></PermissionGate>} />
 
           {/* CRM */}
-          <Route path="crm" element={<CrmDashboardPage />} />
-          <Route path="crm/contacts" element={<ContactsPage />} />
-          <Route path="crm/contacts/:id" element={<ContactDetailPage />} />
-          <Route path="crm/deals" element={<DealsPage />} />
-          <Route path="crm/deals/:id" element={<DealDetailPage />} />
-          <Route path="crm/tasks" element={<TasksPage />} />
-          <Route path="crm/activities" element={<ActivitiesPage />} />
-          <Route path="crm/deals/kanban" element={<DealsKanbanPage />} />
-          <Route path="crm/calendar" element={<CalendarPage />} />
-          <Route path="crm/pipelines" element={<PipelinesPage />} />
+          <Route path="crm" element={<PermissionGate permission="crm:read"><CrmDashboardPage /></PermissionGate>} />
+          <Route path="crm/contacts" element={<PermissionGate permission="crm:read"><ContactsPage /></PermissionGate>} />
+          <Route path="crm/contacts/:id" element={<PermissionGate permission="crm:read"><ContactDetailPage /></PermissionGate>} />
+          <Route path="crm/deals" element={<PermissionGate permission="crm:read"><DealsPage /></PermissionGate>} />
+          <Route path="crm/deals/:id" element={<PermissionGate permission="crm:read"><DealDetailPage /></PermissionGate>} />
+          <Route path="crm/tasks" element={<PermissionGate permission="crm:read"><TasksPage /></PermissionGate>} />
+          <Route path="crm/activities" element={<PermissionGate permission="crm:read"><ActivitiesPage /></PermissionGate>} />
+          <Route path="crm/deals/kanban" element={<PermissionGate permission="crm:read"><DealsKanbanPage /></PermissionGate>} />
+          <Route path="crm/calendar" element={<PermissionGate permission="crm:read"><CalendarPage /></PermissionGate>} />
+          <Route path="crm/pipelines" element={<PermissionGate permission="crm:manage"><PipelinesPage /></PermissionGate>} />
 
           {/* Финансы */}
-          <Route path="finance" element={<FinanceDashboardPage />} />
-          <Route path="finance/accounts" element={<AccountsPage />} />
-          <Route path="finance/transactions" element={<TransactionsPage />} />
-          <Route path="finance/reports" element={<ReportsPage />} />
+          <Route path="finance" element={<PermissionGate permission="finance:read"><FinanceDashboardPage /></PermissionGate>} />
+          <Route path="finance/accounts" element={<PermissionGate permission="finance:read"><AccountsPage /></PermissionGate>} />
+          <Route path="finance/transactions" element={<PermissionGate permission="finance:read"><TransactionsPage /></PermissionGate>} />
+          <Route path="finance/reports" element={<PermissionGate permission="finance:read"><ReportsPage /></PermissionGate>} />
 
           {/* Документы */}
           <Route path="documents" element={<DocumentsPage />} />
 
           {/* Аналитика */}
-          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="analytics" element={<PermissionGate permission="reports:read"><AnalyticsPage /></PermissionGate>} />
 
           {/* Настройки */}
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="settings/users" element={<UsersPage />} />
-          <Route path="settings/warehouses" element={<WarehouseSettingsPage />} />
-          <Route path="settings/units" element={<UnitsPage />} />
-          <Route path="settings/price-lists" element={<PriceListsPage />} />
-          <Route path="settings/audit" element={<AuditPage />} />
-          <Route path="settings/roles" element={<RolesPage />} />
-          <Route path="settings/telegram" element={<TelegramPage />} />
+          <Route path="settings" element={<PermissionGate permission="settings:read"><SettingsPage /></PermissionGate>} />
+          <Route path="settings/users" element={<PermissionGate permission="users:manage"><UsersPage /></PermissionGate>} />
+          <Route path="settings/warehouses" element={<PermissionGate permission="settings:manage"><WarehouseSettingsPage /></PermissionGate>} />
+          <Route path="settings/units" element={<PermissionGate permission="settings:manage"><UnitsPage /></PermissionGate>} />
+          <Route path="settings/price-lists" element={<PermissionGate permission="settings:manage"><PriceListsPage /></PermissionGate>} />
+          <Route path="settings/audit" element={<PermissionGate permission="settings:manage"><AuditPage /></PermissionGate>} />
+          <Route path="settings/roles" element={<PermissionGate permission="users:manage"><RolesPage /></PermissionGate>} />
+          <Route path="settings/telegram" element={<PermissionGate permission="settings:manage"><TelegramPage /></PermissionGate>} />
         </Route>
 
         {/* Fallback */}

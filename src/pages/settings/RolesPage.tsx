@@ -27,78 +27,78 @@ import { rbacApi, type CustomRole } from '@/api/rbac';
 import { formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
 
-/** Группы разрешений */
+/** Группы разрешений (ключи совпадают с бэкендом: category:action) */
 const PERMISSION_GROUPS = [
   {
     group: 'Товары',
     permissions: [
-      { key: 'products.view', label: 'Просмотр' },
-      { key: 'products.create', label: 'Создание' },
-      { key: 'products.edit', label: 'Редактирование' },
-      { key: 'products.delete', label: 'Удаление' },
+      { key: 'products:read', label: 'Просмотр' },
+      { key: 'products:create', label: 'Создание' },
+      { key: 'products:update', label: 'Редактирование' },
+      { key: 'products:delete', label: 'Удаление' },
     ],
   },
   {
     group: 'Склад',
     permissions: [
-      { key: 'warehouse.view', label: 'Просмотр' },
-      { key: 'warehouse.manage', label: 'Управление' },
+      { key: 'warehouse:read', label: 'Просмотр' },
+      { key: 'warehouse:manage', label: 'Управление' },
     ],
   },
   {
     group: 'Продажи',
     permissions: [
-      { key: 'sales.view', label: 'Просмотр' },
-      { key: 'sales.create', label: 'Создание' },
-      { key: 'sales.manage', label: 'Управление' },
+      { key: 'sales:read', label: 'Просмотр' },
+      { key: 'sales:create', label: 'Создание' },
+      { key: 'sales:manage', label: 'Управление' },
     ],
   },
   {
     group: 'Закупки',
     permissions: [
-      { key: 'purchases.view', label: 'Просмотр' },
-      { key: 'purchases.create', label: 'Создание' },
-      { key: 'purchases.manage', label: 'Управление' },
+      { key: 'purchases:read', label: 'Просмотр' },
+      { key: 'purchases:create', label: 'Создание' },
+      { key: 'purchases:manage', label: 'Управление' },
     ],
   },
   {
     group: 'CRM',
     permissions: [
-      { key: 'crm.view', label: 'Просмотр' },
-      { key: 'crm.manage', label: 'Управление' },
+      { key: 'crm:read', label: 'Просмотр' },
+      { key: 'crm:manage', label: 'Управление' },
     ],
   },
   {
     group: 'Финансы',
     permissions: [
-      { key: 'finance.view', label: 'Просмотр' },
-      { key: 'finance.manage', label: 'Управление' },
+      { key: 'finance:read', label: 'Просмотр' },
+      { key: 'finance:manage', label: 'Управление' },
     ],
   },
   {
     group: 'Настройки',
     permissions: [
-      { key: 'settings.view', label: 'Просмотр' },
-      { key: 'settings.manage', label: 'Управление' },
+      { key: 'settings:read', label: 'Просмотр' },
+      { key: 'settings:manage', label: 'Управление' },
     ],
   },
   {
     group: 'Пользователи',
     permissions: [
-      { key: 'users.view', label: 'Просмотр' },
-      { key: 'users.manage', label: 'Управление' },
+      { key: 'users:read', label: 'Просмотр' },
+      { key: 'users:manage', label: 'Управление' },
     ],
   },
   {
     group: 'Отчёты',
     permissions: [
-      { key: 'reports.view', label: 'Просмотр' },
+      { key: 'reports:read', label: 'Просмотр' },
     ],
   },
   {
     group: 'Экспорт',
     permissions: [
-      { key: 'export.allowed', label: 'Разрешён' },
+      { key: 'export:allowed', label: 'Разрешён' },
     ],
   },
 ];
