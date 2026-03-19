@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/uiStore';
+import { useAuthStore } from '@/stores/authStore';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -17,11 +18,13 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  permission?: string;
 }
 
 interface NavGroup {
   title: string;
   items: NavItem[];
+  permission?: string;
 }
 
 const navGroups: NavGroup[] = [
@@ -33,6 +36,7 @@ const navGroups: NavGroup[] = [
   },
   {
     title: 'Товары',
+    permission: 'products:read',
     items: [
       { label: 'Товары', href: '/products', icon: <Package className="h-4 w-4" /> },
       { label: 'Категории', href: '/categories', icon: <FolderTree className="h-4 w-4" /> },
@@ -40,6 +44,7 @@ const navGroups: NavGroup[] = [
   },
   {
     title: 'Склад',
+    permission: 'warehouse:read',
     items: [
       { label: 'Остатки', href: '/warehouse', icon: <Warehouse className="h-4 w-4" /> },
       { label: 'Операции', href: '/warehouse/operations', icon: <ArrowLeftRight className="h-4 w-4" /> },
@@ -48,6 +53,7 @@ const navGroups: NavGroup[] = [
   },
   {
     title: 'Закупки',
+    permission: 'purchases:read',
     items: [
       { label: 'Закупки', href: '/purchases', icon: <ShoppingCart className="h-4 w-4" /> },
       { label: 'Поставщики', href: '/suppliers', icon: <Truck className="h-4 w-4" /> },
@@ -55,6 +61,7 @@ const navGroups: NavGroup[] = [
   },
   {
     title: 'Продажи',
+    permission: 'sales:read',
     items: [
       { label: 'Продажи', href: '/sales', icon: <TrendingUp className="h-4 w-4" /> },
       { label: 'Касса', href: '/pos', icon: <Monitor className="h-4 w-4" /> },
@@ -63,12 +70,14 @@ const navGroups: NavGroup[] = [
   },
   {
     title: 'Производство',
+    permission: 'warehouse:manage',
     items: [
       { label: 'Сборка', href: '/manufacturing', icon: <Cog className="h-4 w-4" /> },
     ],
   },
   {
     title: 'CRM',
+    permission: 'crm:read',
     items: [
       { label: 'Обзор CRM', href: '/crm', icon: <Building2 className="h-4 w-4" /> },
       { label: 'Контакты', href: '/crm/contacts', icon: <Users className="h-4 w-4" /> },
@@ -82,6 +91,7 @@ const navGroups: NavGroup[] = [
   },
   {
     title: 'Финансы',
+    permission: 'finance:read',
     items: [
       { label: 'Обзор', href: '/finance', icon: <Wallet className="h-4 w-4" /> },
       { label: 'Счета', href: '/finance/accounts', icon: <Wallet className="h-4 w-4" /> },
@@ -93,18 +103,36 @@ const navGroups: NavGroup[] = [
     title: 'Прочее',
     items: [
       { label: 'Документы', href: '/documents', icon: <FileText className="h-4 w-4" /> },
-      { label: 'Аналитика', href: '/analytics', icon: <BarChart3 className="h-4 w-4" /> },
-      { label: 'Настройки', href: '/settings', icon: <Settings className="h-4 w-4" /> },
-      { label: 'Пользователи', href: '/settings/users', icon: <Users className="h-4 w-4" /> },
-      { label: 'Роли', href: '/settings/roles', icon: <Shield className="h-4 w-4" /> },
-      { label: 'Telegram', href: '/settings/telegram', icon: <Send className="h-4 w-4" /> },
+      { label: 'Аналитика', href: '/analytics', icon: <BarChart3 className="h-4 w-4" />, permission: 'reports:read' },
+      { label: 'Настройки', href: '/settings', icon: <Settings className="h-4 w-4" />, permission: 'settings:read' },
+      { label: 'Пользователи', href: '/settings/users', icon: <Users className="h-4 w-4" />, permission: 'users:manage' },
+      { label: 'Роли', href: '/settings/roles', icon: <Shield className="h-4 w-4" />, permission: 'users:manage' },
+      { label: 'Telegram', href: '/settings/telegram', icon: <Send className="h-4 w-4" />, permission: 'settings:manage' },
     ],
   },
 ];
 
+function hasPermission(userRole: string, permissions: string[], requiredPermission?: string): boolean {
+  if (!requiredPermission) return true;
+  if (userRole === 'OWNER' || userRole === 'ADMIN') return true;
+  return permissions.includes(requiredPermission);
+}
+
 export function Sidebar() {
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
   const location = useLocation();
+  const user = useAuthStore((s) => s.user);
+
+  const userRole = user?.role?.toUpperCase() || '';
+  const userPermissions: string[] = (user as any)?.customRole?.permissions || [];
+
+  const filteredGroups = navGroups
+    .filter((group) => hasPermission(userRole, userPermissions, group.permission))
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => hasPermission(userRole, userPermissions, item.permission)),
+    }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <aside
@@ -128,7 +156,7 @@ export function Sidebar() {
       {/* Навигация */}
       <ScrollArea className="flex-1 py-2">
         <nav className="space-y-1 px-2">
-          {navGroups.map((group) => (
+          {filteredGroups.map((group) => (
             <div key={group.title}>
               {!sidebarCollapsed && (
                 <p className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">

@@ -99,8 +99,9 @@ export default function UsersPage() {
 
         return (
           <Select
-            value={currentRoleId}
+            value={currentRoleId || '_none'}
             onValueChange={(roleId) => {
+              if (roleId === '_none') return;
               assignRoleMutation.mutate({ userId, roleId });
             }}
           >
@@ -108,7 +109,7 @@ export default function UsersPage() {
               <SelectValue placeholder="Назначить роль" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Без роли</SelectItem>
+              <SelectItem value="_none">Без роли</SelectItem>
               {customRoles.map(role => (
                 <SelectItem key={role.id} value={role.id}>
                   <div className="flex items-center gap-1">
