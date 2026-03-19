@@ -95,6 +95,7 @@ const navGroups: NavGroup[] = [
       { label: 'Документы', href: '/documents', icon: <FileText className="h-4 w-4" /> },
       { label: 'Аналитика', href: '/analytics', icon: <BarChart3 className="h-4 w-4" /> },
       { label: 'Настройки', href: '/settings', icon: <Settings className="h-4 w-4" /> },
+      { label: 'Пользователи', href: '/settings/users', icon: <Users className="h-4 w-4" /> },
       { label: 'Роли', href: '/settings/roles', icon: <Shield className="h-4 w-4" /> },
       { label: 'Telegram', href: '/settings/telegram', icon: <Send className="h-4 w-4" /> },
     ],
