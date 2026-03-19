@@ -94,6 +94,9 @@ function PermissionGate({ permission, children }: { permission: string; children
 
   if (role === 'OWNER' || role === 'ADMIN') return <>{children}</>;
 
+  const hasCustomRole = !!(user as any)?.customRoleId || !!(user as any)?.customRole;
+  if (!hasCustomRole) return <>{children}</>; // нет назначенной роли — доступ ко всему
+
   const permissions: string[] = (user as any)?.customRole?.permissions || [];
   if (permissions.includes(permission)) return <>{children}</>;
 

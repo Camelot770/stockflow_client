@@ -112,9 +112,10 @@ const navGroups: NavGroup[] = [
   },
 ];
 
-function hasPermission(userRole: string, permissions: string[], requiredPermission?: string): boolean {
+function hasPermission(userRole: string, permissions: string[], hasCustomRole: boolean, requiredPermission?: string): boolean {
   if (!requiredPermission) return true;
   if (userRole === 'OWNER' || userRole === 'ADMIN') return true;
+  if (!hasCustomRole) return true; // нет назначенной роли — показываем всё
   return permissions.includes(requiredPermission);
 }
 
@@ -125,12 +126,13 @@ export function Sidebar() {
 
   const userRole = user?.role?.toUpperCase() || '';
   const userPermissions: string[] = (user as any)?.customRole?.permissions || [];
+  const hasCustomRole = !!(user as any)?.customRoleId || !!(user as any)?.customRole;
 
   const filteredGroups = navGroups
-    .filter((group) => hasPermission(userRole, userPermissions, group.permission))
+    .filter((group) => hasPermission(userRole, userPermissions, hasCustomRole, group.permission))
     .map((group) => ({
       ...group,
-      items: group.items.filter((item) => hasPermission(userRole, userPermissions, item.permission)),
+      items: group.items.filter((item) => hasPermission(userRole, userPermissions, hasCustomRole, item.permission)),
     }))
     .filter((group) => group.items.length > 0);
 
