@@ -25,7 +25,7 @@ const productSchema = z.object({
   sellingPrice: z.coerce.number().min(0, 'Не может быть отрицательным'),
   minStock: z.coerce.number().min(0, 'Не может быть отрицательным'),
   maxStock: z.coerce.number().optional(),
-  weight: z.coerce.number().optional(),
+  weight: z.coerce.number().min(0, 'Вес не может быть отрицательным').optional(),
   isActive: z.boolean().default(true),
 });
 
@@ -63,7 +63,15 @@ export default function ProductCreatePage() {
         toast.success('Товар создан');
         navigate('/products');
       },
-      onError: (err: any) => toast.error(err?.response?.data?.error?.message || 'Ошибка создания товара'),
+      onError: (err: any) => {
+        const error = err?.response?.data?.error;
+        const details = error?.details;
+        if (details?.length) {
+          toast.error(details.map((d: any) => `${d.field}: ${d.message}`).join(', '));
+        } else {
+          toast.error(error?.message || 'Ошибка создания товара');
+        }
+      },
     });
   };
 
@@ -164,7 +172,8 @@ export default function ProductCreatePage() {
               </div>
               <div className="space-y-2">
                 <Label>Вес (кг)</Label>
-                <Input type="number" step="0.01" {...register('weight')} />
+                <Input type="number" step="0.01" min="0" {...register('weight')} />
+                {errors.weight && <p className="text-xs text-red-500">{errors.weight.message}</p>}
               </div>
             </div>
           </CardContent>
