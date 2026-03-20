@@ -106,15 +106,12 @@ export default function PosPage() {
 
     const orderData = {
       warehouseId,
-      status: 'confirmed' as const,
-      note: `POS | Оплата: ${paymentMethod === 'cash' ? 'Наличные' : 'Карта'}`,
       discountAmount,
       items: cart.map((item) => ({
         productId: item.product.id,
         quantity: item.quantity,
         price: item.product.sellingPrice,
         discount: discount,
-        amount: item.product.sellingPrice * item.quantity * (1 - discount / 100),
       })),
     };
 
