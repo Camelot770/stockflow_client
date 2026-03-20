@@ -49,6 +49,7 @@ const navGroups: NavGroup[] = [
       { label: 'Остатки', href: '/warehouse', icon: <Warehouse className="h-4 w-4" /> },
       { label: 'Операции', href: '/warehouse/operations', icon: <ArrowLeftRight className="h-4 w-4" /> },
       { label: 'Инвентаризация', href: '/warehouse/inventory', icon: <ClipboardList className="h-4 w-4" /> },
+      { label: 'Склады', href: '/settings/warehouses', icon: <Building2 className="h-4 w-4" />, permission: 'warehouse:manage' },
     ],
   },
   {
