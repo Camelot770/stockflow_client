@@ -18,16 +18,8 @@ export function useStock(params?: ListParams) {
 
 export function useStockOperations(params?: ListParams) {
   return useQuery({
-    queryKey: ['stock-operations', params],
-    queryFn: () => warehouseApi.getOperations(params),
-  });
-}
-
-export function useStockOperation(id: string) {
-  return useQuery({
-    queryKey: ['stock-operations', id],
-    queryFn: () => warehouseApi.getOperation(id),
-    enabled: !!id,
+    queryKey: ['stock-movements', params],
+    queryFn: () => warehouseApi.getMovements(params),
   });
 }
 
@@ -50,16 +42,6 @@ export function useCreateStockOperation() {
   });
 }
 
-export function useCompleteOperation() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => warehouseApi.completeOperation(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['stock-operations'] });
-      qc.invalidateQueries({ queryKey: ['stock'] });
-    },
-  });
-}
 
 export function useStockMovements(params?: ListParams) {
   return useQuery({
