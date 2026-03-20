@@ -20,7 +20,7 @@ const columns: ColumnDef<Customer, unknown>[] = [
   { accessorKey: 'name', header: 'Имя / Компания', cell: ({ row }) => (<div><p className="font-medium">{row.original.name}</p>{row.original.companyName && <p className="text-xs text-muted-foreground">{row.original.companyName}</p>}</div>) },
   { accessorKey: 'phone', header: 'Телефон', cell: ({ row }) => row.original.phone || '-' },
   { accessorKey: 'email', header: 'Email', cell: ({ row }) => row.original.email || '-' },
-  { accessorKey: 'type', header: 'Тип', cell: ({ row }) => <Badge variant="secondary">{row.original.type === 'company' ? 'Компания' : 'Физлицо'}</Badge> },
+  { accessorKey: 'type', header: 'Тип', cell: ({ row }) => <Badge variant="secondary">{row.original.type === 'LEGAL_ENTITY' ? 'Компания' : 'Физлицо'}</Badge> },
   { accessorKey: 'totalOrders', header: 'Заказы', cell: ({ row }) => formatNumber(row.original.totalOrders ?? 0) },
   { accessorKey: 'totalRevenue', header: 'Выручка', cell: ({ row }) => formatCurrency(row.original.totalRevenue ?? 0) },
 ];
@@ -31,11 +31,19 @@ export default function ContactsPage() {
   const { data, isLoading } = useCustomers(params);
   const createCustomer = useCreateCustomer();
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ name: '', type: 'individual' as const, email: '', phone: '', companyName: '' });
+  const [form, setForm] = useState({ name: '', type: 'INDIVIDUAL' as string, email: '', phone: '', companyName: '' });
 
   const handleCreate = () => {
-    createCustomer.mutate(form, {
-      onSuccess: () => { toast.success('Контакт создан'); setShowCreate(false); },
+    const payload: Record<string, unknown> = {
+      name: form.name,
+      type: form.type,
+      phone: form.phone || undefined,
+      email: form.email || undefined,
+      contactPerson: form.type === 'LEGAL_ENTITY' ? form.companyName || undefined : undefined,
+    };
+    createCustomer.mutate(payload as any, {
+      onSuccess: () => { toast.success('Контакт создан'); setShowCreate(false); setForm({ name: '', type: 'INDIVIDUAL', email: '', phone: '', companyName: '' }); },
+      onError: (err: any) => { toast.error(err?.response?.data?.error?.message || 'Ошибка создания контакта'); },
     });
   };
 
@@ -55,13 +63,13 @@ export default function ContactsPage() {
           <DialogHeader><DialogTitle>Новый контакт</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2"><Label>Тип</Label>
-              <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v as 'individual' | 'company' })}>
+              <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="individual">Физлицо</SelectItem><SelectItem value="company">Компания</SelectItem></SelectContent>
+                <SelectContent><SelectItem value="INDIVIDUAL">Физлицо</SelectItem><SelectItem value="LEGAL_ENTITY">Компания</SelectItem></SelectContent>
               </Select>
             </div>
             <div className="space-y-2"><Label>Имя *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-            {form.type === 'company' && <div className="space-y-2"><Label>Компания</Label><Input value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} /></div>}
+            {form.type === 'LEGAL_ENTITY' && <div className="space-y-2"><Label>Контактное лицо</Label><Input value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} /></div>}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label>Телефон</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
               <div className="space-y-2"><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
