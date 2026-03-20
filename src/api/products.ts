@@ -37,7 +37,7 @@ export const productsApi = {
     }).then((r) => mapProduct(r.data)),
 
   update: (id: string, data: Partial<Product>) =>
-    apiClient.patch<Product>(`/products/${id}`, {
+    apiClient.put<Product>(`/products/${id}`, {
       ...data,
       costPrice: data.purchasePrice ?? (data as any).costPrice,
       retailPrice: data.sellingPrice ?? (data as any).retailPrice,
