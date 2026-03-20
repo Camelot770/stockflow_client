@@ -26,7 +26,7 @@ const productSchema = z.object({
   sellingPrice: z.coerce.number().min(0, 'Не может быть отрицательным'),
   minStock: z.coerce.number().min(0, 'Не может быть отрицательным'),
   maxStock: z.coerce.number().optional(),
-  weight: z.coerce.number().optional(),
+  weight: z.coerce.number().min(0, 'Вес не может быть отрицательным').optional(),
   isActive: z.boolean().default(true),
 });
 
@@ -71,14 +71,17 @@ export default function ProductEditPage() {
 
   const onSubmit = (data: ProductForm) => {
     const payload = {
-      ...data,
-      costPrice: data.purchasePrice || 0,
-      retailPrice: data.sellingPrice || 0,
-      categoryId: data.categoryId || undefined,
-      unitId: data.unitId || undefined,
+      name: data.name,
+      sku: data.sku,
       barcode: data.barcode || undefined,
       description: data.description || undefined,
+      categoryId: data.categoryId || undefined,
+      unitId: data.unitId || undefined,
+      costPrice: data.purchasePrice || 0,
+      retailPrice: data.sellingPrice || 0,
+      minStock: data.minStock || 0,
       weight: data.weight || undefined,
+      isActive: data.isActive,
     };
     updateProduct.mutate(
       { id: product.id, data: payload as any },
@@ -87,7 +90,15 @@ export default function ProductEditPage() {
           toast.success('Товар обновлён');
           navigate(`/products/${product.id}`);
         },
-        onError: () => toast.error('Ошибка при обновлении товара'),
+        onError: (err: any) => {
+          const error = err?.response?.data?.error;
+          const details = error?.details;
+          if (details?.length) {
+            toast.error(details.map((d: any) => `${d.field}: ${d.message}`).join(', '));
+          } else {
+            toast.error(error?.message || 'Ошибка при обновлении товара');
+          }
+        },
       },
     );
   };
