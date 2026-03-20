@@ -25,28 +25,58 @@ export const warehouseApi = {
   getStockByWarehouse: (warehouseId: string, params?: ListParams) =>
     apiClient.get<PaginatedResponse<StockItem>>(`/stock/warehouse/${warehouseId}`, { params }).then((r) => r.data),
 
-  /** Складские операции */
-  getOperations: (params?: ListParams) =>
-    apiClient.get<PaginatedResponse<StockOperation>>('/stock/operations', { params }).then((r) => r.data),
-
-  getOperation: (id: string) =>
-    apiClient.get<StockOperation>(`/stock/operations/${id}`).then((r) => r.data),
-
-  createOperation: (data: Partial<StockOperation>) =>
-    apiClient.post<StockOperation>('/stock/operations', data).then((r) => r.data),
-
-  updateOperation: (id: string, data: Partial<StockOperation>) =>
-    apiClient.patch<StockOperation>(`/stock/operations/${id}`, data).then((r) => r.data),
-
-  completeOperation: (id: string) =>
-    apiClient.post(`/stock/operations/${id}/complete`).then((r) => r.data),
-
-  cancelOperation: (id: string) =>
-    apiClient.post(`/stock/operations/${id}/cancel`).then((r) => r.data),
-
-  /** Движения товаров */
+  /** Складские операции — отдельные эндпоинты */
   getMovements: (params?: ListParams) =>
     apiClient.get<PaginatedResponse<StockMovement>>('/stock/movements', { params }).then((r) => r.data),
+
+  /** Приёмка товара на склад */
+  createIncoming: (data: { warehouseId: string; productId: string; quantity: number; reason?: string }) =>
+    apiClient.post('/stock/incoming', data).then((r) => r.data),
+
+  /** Отгрузка товара со склада */
+  createOutgoing: (data: { warehouseId: string; productId: string; quantity: number; reason?: string }) =>
+    apiClient.post('/stock/outgoing', data).then((r) => r.data),
+
+  /** Перемещение между складами */
+  createTransfer: (data: { fromWarehouseId: string; toWarehouseId: string; productId: string; quantity: number; reason?: string }) =>
+    apiClient.post('/stock/transfer', data).then((r) => r.data),
+
+  /**
+   * Универсальная операция: разбивает items на отдельные запросы
+   * Совместимость со старым интерфейсом OperationCreatePage
+   */
+  createOperation: async (data: any) => {
+    const { type, items, warehouseToId, warehouseFromId, note } = data;
+    const results = [];
+    for (const item of items) {
+      let result;
+      if (type === 'receipt') {
+        result = await apiClient.post('/stock/incoming', {
+          warehouseId: warehouseToId,
+          productId: item.productId,
+          quantity: item.quantity,
+          reason: note || undefined,
+        });
+      } else if (type === 'shipment' || type === 'writeoff') {
+        result = await apiClient.post('/stock/outgoing', {
+          warehouseId: warehouseFromId,
+          productId: item.productId,
+          quantity: item.quantity,
+          reason: note || (type === 'writeoff' ? 'Списание' : undefined),
+        });
+      } else if (type === 'transfer') {
+        result = await apiClient.post('/stock/transfer', {
+          fromWarehouseId: warehouseFromId,
+          toWarehouseId: warehouseToId,
+          productId: item.productId,
+          quantity: item.quantity,
+          reason: note || undefined,
+        });
+      }
+      results.push(result?.data);
+    }
+    return { success: true, data: results };
+  },
 
   /** Корректировка остатков (инвентаризация) */
   createAdjustment: (data: { warehouseId: string; productId: string; quantity: number; reason: string }) =>
