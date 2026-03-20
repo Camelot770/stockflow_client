@@ -45,12 +45,25 @@ export default function ProductCreatePage() {
   });
 
   const onSubmit = (data: ProductForm) => {
-    createProduct.mutate(data, {
+    const payload = {
+      name: data.name,
+      sku: data.sku,
+      barcode: data.barcode || undefined,
+      description: data.description || undefined,
+      categoryId: data.categoryId || undefined,
+      unitId: data.unitId || undefined,
+      costPrice: data.purchasePrice || 0,
+      retailPrice: data.sellingPrice || 0,
+      minStock: data.minStock || 0,
+      weight: data.weight || undefined,
+      isActive: data.isActive,
+    };
+    createProduct.mutate(payload as any, {
       onSuccess: () => {
         toast.success('Товар создан');
         navigate('/products');
       },
-      onError: () => toast.error('Ошибка создания товара'),
+      onError: (err: any) => toast.error(err?.response?.data?.error?.message || 'Ошибка создания товара'),
     });
   };
 

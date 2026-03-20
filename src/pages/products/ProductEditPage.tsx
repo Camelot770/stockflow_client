@@ -56,8 +56,8 @@ export default function ProductEditPage() {
         description: product.description || '',
         categoryId: product.categoryId || '',
         unitId: product.unitId || '',
-        purchasePrice: product.purchasePrice ?? 0,
-        sellingPrice: product.sellingPrice ?? 0,
+        purchasePrice: (product as any).costPrice ?? product.purchasePrice ?? 0,
+        sellingPrice: (product as any).retailPrice ?? product.sellingPrice ?? 0,
         minStock: product.minStock ?? 0,
         maxStock: product.maxStock ?? undefined,
         weight: product.weight ?? undefined,
@@ -70,8 +70,18 @@ export default function ProductEditPage() {
   if (!product) return <p className="text-center text-muted-foreground py-16">Товар не найден</p>;
 
   const onSubmit = (data: ProductForm) => {
+    const payload = {
+      ...data,
+      costPrice: data.purchasePrice || 0,
+      retailPrice: data.sellingPrice || 0,
+      categoryId: data.categoryId || undefined,
+      unitId: data.unitId || undefined,
+      barcode: data.barcode || undefined,
+      description: data.description || undefined,
+      weight: data.weight || undefined,
+    };
     updateProduct.mutate(
-      { id: product.id, data },
+      { id: product.id, data: payload as any },
       {
         onSuccess: () => {
           toast.success('Товар обновлён');
