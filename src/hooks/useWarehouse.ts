@@ -31,6 +31,14 @@ export function useCreateWarehouse() {
   });
 }
 
+export function useDeleteWarehouse() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => warehouseApi.deleteWarehouse(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['warehouses'] }),
+  });
+}
+
 export function useCreateStockOperation() {
   const qc = useQueryClient();
   return useMutation({

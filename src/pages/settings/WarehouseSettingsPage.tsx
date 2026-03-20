@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Warehouse } from 'lucide-react';
+import { Plus, Warehouse, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,15 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { useWarehouses, useCreateWarehouse } from '@/hooks/useWarehouse';
+import { useWarehouses, useCreateWarehouse, useDeleteWarehouse } from '@/hooks/useWarehouse';
 import { toast } from 'sonner';
 
 export default function WarehouseSettingsPage() {
   const { data: rawWarehouses } = useWarehouses();
   const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
   const createWarehouse = useCreateWarehouse();
+  const deleteWarehouse = useDeleteWarehouse();
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ name: '', address: '' });
+
+  const handleDelete = (id: string, name: string) => {
+    if (!confirm(`Удалить склад "${name}"?`)) return;
+    deleteWarehouse.mutate(id, {
+      onSuccess: () => toast.success('Склад удалён'),
+      onError: (err: any) => toast.error(err?.response?.data?.error?.message || 'Ошибка удаления склада'),
+    });
+  };
 
   const handleCreate = () => {
     createWarehouse.mutate(form as any, {
@@ -41,8 +50,11 @@ export default function WarehouseSettingsPage() {
                   <Warehouse className="h-5 w-5 text-muted-foreground" />
                   <div className="flex-1"><p className="font-medium">{w.name}</p><p className="text-xs text-muted-foreground">{w.address || 'Адрес не указан'}</p></div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
                   <Badge variant="secondary">Склад</Badge>
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(w.id, w.name)}>
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
