@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useWarehouses, useCreateStockOperation } from '@/hooks/useWarehouse';
+import { useProducts } from '@/hooks/useProducts';
 import { toast } from 'sonner';
 
 interface OperationItem {
@@ -22,6 +23,8 @@ export default function OperationCreatePage() {
   const navigate = useNavigate();
   const { data: rawWarehouses } = useWarehouses();
   const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
+  const { data: rawProducts } = useProducts({ limit: 500 });
+  const products = Array.isArray(rawProducts) ? rawProducts : Array.isArray((rawProducts as any)?.data) ? (rawProducts as any).data : [];
   const createOp = useCreateStockOperation();
 
   const [type, setType] = useState<string>('receipt');
@@ -37,6 +40,18 @@ export default function OperationCreatePage() {
   const updateItem = (index: number, field: keyof OperationItem, value: string | number) => {
     const updated = [...items];
     (updated[index] as Record<string, unknown>)[field] = value;
+    setItems(updated);
+  };
+
+  const selectProduct = (index: number, productId: string) => {
+    const product = products.find((p: any) => p.id === productId);
+    const updated = [...items];
+    updated[index] = {
+      ...updated[index],
+      productId,
+      productName: product?.name || '',
+      price: product?.purchasePrice ?? product?.costPrice ?? 0,
+    };
     setItems(updated);
   };
 
@@ -64,9 +79,17 @@ export default function OperationCreatePage() {
         toast.success('Операция создана');
         navigate('/warehouse/operations');
       },
-      onError: () => toast.error('Ошибка создания операции'),
+      onError: (err: any) => {
+        const error = err?.response?.data?.error;
+        toast.error(error?.message || 'Ошибка создания операции');
+      },
     });
   };
+
+  // Товары, которые ещё не добавлены в операцию
+  const availableProducts = products.filter(
+    (p: any) => !items.some((item) => item.productId === p.id)
+  );
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -102,7 +125,7 @@ export default function OperationCreatePage() {
                 <Select value={warehouseFromId} onValueChange={setWarehouseFromId}>
                   <SelectTrigger><SelectValue placeholder="Выберите склад" /></SelectTrigger>
                   <SelectContent>
-                    {warehouses.map((w) => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
+                    {warehouses.map((w: any) => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -113,7 +136,7 @@ export default function OperationCreatePage() {
                 <Select value={warehouseToId} onValueChange={setWarehouseToId}>
                   <SelectTrigger><SelectValue placeholder="Выберите склад" /></SelectTrigger>
                   <SelectContent>
-                    {warehouses.map((w) => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
+                    {warehouses.map((w: any) => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -129,7 +152,7 @@ export default function OperationCreatePage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Товары</CardTitle>
-          <Button variant="outline" size="sm" onClick={addItem}>
+          <Button variant="outline" size="sm" onClick={addItem} disabled={availableProducts.length === 0}>
             <Plus className="h-4 w-4 mr-1" />
             Добавить
           </Button>
@@ -138,7 +161,7 @@ export default function OperationCreatePage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID товара</TableHead>
+                <TableHead>Товар</TableHead>
                 <TableHead>Количество</TableHead>
                 <TableHead>Цена</TableHead>
                 <TableHead className="w-10" />
@@ -148,13 +171,26 @@ export default function OperationCreatePage() {
               {items.map((item, i) => (
                 <TableRow key={i}>
                   <TableCell>
-                    <Input value={item.productId} onChange={(e) => updateItem(i, 'productId', e.target.value)} placeholder="ID товара" />
+                    <Select value={item.productId} onValueChange={(val) => selectProduct(i, val)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Выберите товар" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {products
+                          .filter((p: any) => p.id === item.productId || !items.some((it) => it.productId === p.id))
+                          .map((p: any) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name} ({p.sku})
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell>
-                    <Input type="number" value={item.quantity} onChange={(e) => updateItem(i, 'quantity', Number(e.target.value))} className="w-24" />
+                    <Input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(i, 'quantity', Number(e.target.value))} className="w-24" />
                   </TableCell>
                   <TableCell>
-                    <Input type="number" value={item.price} onChange={(e) => updateItem(i, 'price', Number(e.target.value))} className="w-32" />
+                    <Input type="number" min="0" step="0.01" value={item.price} onChange={(e) => updateItem(i, 'price', Number(e.target.value))} className="w-32" />
                   </TableCell>
                   <TableCell>
                     <Button variant="ghost" size="icon" onClick={() => removeItem(i)}>
@@ -177,7 +213,7 @@ export default function OperationCreatePage() {
 
       <div className="flex justify-end gap-3">
         <Button variant="outline" onClick={() => navigate('/warehouse/operations')}>Отмена</Button>
-        <Button onClick={handleSubmit} disabled={createOp.isPending || items.length === 0}>
+        <Button onClick={handleSubmit} disabled={createOp.isPending || items.length === 0 || items.some((i) => !i.productId)}>
           {createOp.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Создать операцию
         </Button>
