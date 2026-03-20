@@ -87,18 +87,52 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/** Набор разрешений по умолчанию для системных ролей */
+const SYSTEM_ROLE_PERMISSIONS: Record<string, string[]> = {
+  OWNER: ['*'],
+  ADMIN: ['*'],
+  MANAGER: [
+    'products:read', 'products:create', 'products:update', 'products:delete',
+    'warehouse:read', 'warehouse:manage',
+    'purchases:read', 'purchases:create',
+    'sales:read', 'sales:create',
+    'crm:read', 'crm:manage',
+    'reports:read',
+    'finance:read',
+    'settings:read',
+  ],
+  WAREHOUSE_WORKER: [
+    'products:read',
+    'warehouse:read', 'warehouse:manage',
+  ],
+  ACCOUNTANT: [
+    'finance:read', 'finance:manage',
+    'reports:read',
+    'purchases:read',
+    'sales:read',
+  ],
+};
+
+function hasPermissionCheck(user: any, permission: string): boolean {
+  const role = user?.role?.toUpperCase() || '';
+  if (role === 'OWNER' || role === 'ADMIN') return true;
+
+  // If user has a custom role, use its permissions
+  const customPerms: string[] = (user as any)?.customRole?.permissions || [];
+  if ((user as any)?.customRoleId && customPerms.length > 0) {
+    return customPerms.includes(permission);
+  }
+
+  // Fall back to system role default permissions
+  const systemPerms = SYSTEM_ROLE_PERMISSIONS[role] || [];
+  return systemPerms.includes('*') || systemPerms.includes(permission);
+}
+
 /** Маршрут с проверкой прав доступа */
 function PermissionGate({ permission, children }: { permission: string; children: React.ReactNode }) {
   const user = useAuthStore((s) => s.user);
-  const role = user?.role?.toUpperCase() || '';
 
-  if (role === 'OWNER' || role === 'ADMIN') return <>{children}</>;
-
-  const hasCustomRole = !!(user as any)?.customRoleId || !!(user as any)?.customRole;
-  if (!hasCustomRole) return <>{children}</>; // нет назначенной роли — доступ ко всему
-
-  const permissions: string[] = (user as any)?.customRole?.permissions || [];
-  if (permissions.includes(permission)) return <>{children}</>;
+  if (hasPermissionCheck(user, permission)) return <>{children}</>;
 
   return (
     <div className="flex flex-col items-center justify-center h-[60vh] text-center">

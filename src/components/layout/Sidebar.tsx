@@ -112,11 +112,44 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+/** Набор разрешений по умолчанию для системных ролей */
+const SYSTEM_ROLE_PERMISSIONS: Record<string, string[]> = {
+  OWNER: ['*'],
+  ADMIN: ['*'],
+  MANAGER: [
+    'products:read', 'products:create', 'products:update', 'products:delete',
+    'warehouse:read', 'warehouse:manage',
+    'purchases:read', 'purchases:create',
+    'sales:read', 'sales:create',
+    'crm:read', 'crm:manage',
+    'reports:read',
+    'finance:read',
+    'settings:read',
+  ],
+  WAREHOUSE_WORKER: [
+    'products:read',
+    'warehouse:read', 'warehouse:manage',
+  ],
+  ACCOUNTANT: [
+    'finance:read', 'finance:manage',
+    'reports:read',
+    'purchases:read',
+    'sales:read',
+  ],
+};
+
 function hasPermission(userRole: string, permissions: string[], hasCustomRole: boolean, requiredPermission?: string): boolean {
   if (!requiredPermission) return true;
   if (userRole === 'OWNER' || userRole === 'ADMIN') return true;
-  if (!hasCustomRole) return true; // нет назначенной роли — показываем всё
-  return permissions.includes(requiredPermission);
+
+  // If user has a custom role with permissions, use those
+  if (hasCustomRole && permissions.length > 0) {
+    return permissions.includes(requiredPermission);
+  }
+
+  // Fall back to system role default permissions
+  const systemPerms = SYSTEM_ROLE_PERMISSIONS[userRole] || [];
+  return systemPerms.includes('*') || systemPerms.includes(requiredPermission);
 }
 
 export function Sidebar() {
