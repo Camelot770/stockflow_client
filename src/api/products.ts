@@ -32,8 +32,8 @@ export const productsApi = {
   create: (data: Partial<Product>) =>
     apiClient.post<Product>('/products', {
       ...data,
-      costPrice: data.purchasePrice,
-      retailPrice: data.sellingPrice,
+      costPrice: data.purchasePrice ?? (data as any).costPrice ?? 0,
+      retailPrice: data.sellingPrice ?? (data as any).retailPrice ?? 0,
     }).then((r) => mapProduct(r.data)),
 
   update: (id: string, data: Partial<Product>) =>
