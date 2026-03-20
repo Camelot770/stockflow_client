@@ -36,7 +36,7 @@ const columns: ColumnDef<StockItem, unknown>[] = [
     id: 'availableQuantity',
     header: 'Доступно',
     cell: ({ row }) => {
-      const avail = (row.original.quantity ?? 0) - (row.original.reserved ?? 0);
+      const avail = (row.original.quantity ?? 0) - (row.original.reservedQuantity ?? 0);
       const min = row.original.product?.minStock || 0;
       return (
         <Badge variant={avail <= min ? 'destructive' : 'secondary'}>
