@@ -44,8 +44,9 @@ export function useCreateStockOperation() {
   return useMutation({
     mutationFn: (data: Partial<StockOperation>) => warehouseApi.createOperation(data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['stock-operations'] });
+      qc.invalidateQueries({ queryKey: ['stock-movements'] });
       qc.invalidateQueries({ queryKey: ['stock'] });
+      qc.invalidateQueries({ queryKey: ['products'] });
     },
   });
 }
