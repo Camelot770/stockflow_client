@@ -31,8 +31,16 @@ export default function SuppliersPage() {
   const [form, setForm] = useState({ name: '', contactPerson: '', phone: '', email: '', address: '' });
 
   const handleCreate = () => {
-    createSupplier.mutate(form, {
+    const payload: Record<string, unknown> = {
+      name: form.name,
+      contactPerson: form.contactPerson || undefined,
+      phone: form.phone || undefined,
+      email: form.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) ? form.email : undefined,
+      legalAddress: form.address || undefined,
+    };
+    createSupplier.mutate(payload as any, {
       onSuccess: () => { toast.success('Поставщик создан'); setShowCreate(false); setForm({ name: '', contactPerson: '', phone: '', email: '', address: '' }); },
+      onError: (err: any) => { toast.error(err?.response?.data?.error?.message || 'Ошибка создания поставщика'); },
     });
   };
 
