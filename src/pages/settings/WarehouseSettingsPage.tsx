@@ -6,8 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useWarehouses, useCreateWarehouse } from '@/hooks/useWarehouse';
 import { toast } from 'sonner';
@@ -17,7 +15,7 @@ export default function WarehouseSettingsPage() {
   const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
   const createWarehouse = useCreateWarehouse();
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ name: '', address: '', type: 'warehouse' as string });
+  const [form, setForm] = useState({ name: '', address: '' });
 
   const handleCreate = () => {
     createWarehouse.mutate(form as any, {
@@ -44,9 +42,7 @@ export default function WarehouseSettingsPage() {
                   <div className="flex-1"><p className="font-medium">{w.name}</p><p className="text-xs text-muted-foreground">{w.address || 'Адрес не указан'}</p></div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{w.type === 'warehouse' ? 'Склад' : w.type === 'store' ? 'Магазин' : 'Транзит'}</Badge>
-                  {w.isDefault && <Badge variant="default">По умолчанию</Badge>}
-                  <Badge variant={w.isActive ? 'success' : 'destructive'}>{w.isActive ? 'Активен' : 'Неактивен'}</Badge>
+                  <Badge variant="secondary">Склад</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -60,12 +56,6 @@ export default function WarehouseSettingsPage() {
           <div className="space-y-4">
             <div className="space-y-2"><Label>Название *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
             <div className="space-y-2"><Label>Адрес</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Тип</Label>
-              <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="warehouse">Склад</SelectItem><SelectItem value="store">Магазин</SelectItem><SelectItem value="transit">Транзит</SelectItem></SelectContent>
-              </Select>
-            </div>
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setShowCreate(false)}>Отмена</Button><Button onClick={handleCreate} disabled={!form.name}>Создать</Button></DialogFooter>
         </DialogContent>

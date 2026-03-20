@@ -23,8 +23,16 @@ export default function OperationCreatePage() {
   const navigate = useNavigate();
   const { data: rawWarehouses } = useWarehouses();
   const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
-  const { data: rawProducts } = useProducts({ limit: 500 });
-  const products = Array.isArray(rawProducts) ? rawProducts : Array.isArray((rawProducts as any)?.data) ? (rawProducts as any).data : [];
+  const { data: rawProducts, isLoading: productsLoading } = useProducts({ limit: 500 });
+  const products = (() => {
+    if (Array.isArray(rawProducts)) return rawProducts;
+    if (rawProducts && typeof rawProducts === 'object') {
+      const rp = rawProducts as any;
+      if (Array.isArray(rp.data)) return rp.data;
+      if (Array.isArray(rp.products)) return rp.products;
+    }
+    return [];
+  })();
   const createOp = useCreateStockOperation();
 
   const [type, setType] = useState<string>('receipt');
@@ -152,9 +160,9 @@ export default function OperationCreatePage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Товары</CardTitle>
-          <Button variant="outline" size="sm" onClick={addItem} disabled={availableProducts.length === 0}>
+          <Button variant="outline" size="sm" onClick={addItem} disabled={productsLoading || products.length === 0}>
             <Plus className="h-4 w-4 mr-1" />
-            Добавить
+            {productsLoading ? 'Загрузка...' : products.length === 0 ? 'Нет товаров' : 'Добавить'}
           </Button>
         </CardHeader>
         <CardContent>
