@@ -26,14 +26,8 @@ const columns: ColumnDef<Deal, unknown>[] = [
   { accessorKey: 'createdAt', header: 'Дата', cell: ({ row }) => formatDate(row.original.createdAt) },
 ];
 
-/** Моковые стадии для демо */
-const defaultStages: PipelineStage[] = [
-  { id: 's1', name: 'Новые', color: '#3b82f6', order: 0, probability: 10 },
-  { id: 's2', name: 'Квалификация', color: '#8b5cf6', order: 1, probability: 25 },
-  { id: 's3', name: 'Предложение', color: '#f59e0b', order: 2, probability: 50 },
-  { id: 's4', name: 'Согласование', color: '#f97316', order: 3, probability: 75 },
-  { id: 's5', name: 'Закрыто', color: '#10b981', order: 4, probability: 100 },
-];
+/** Пустой массив стадий — пользователь должен создать воронку в настройках */
+const defaultStages: PipelineStage[] = [];
 
 export default function DealsPage() {
   const navigate = useNavigate();
