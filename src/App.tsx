@@ -34,6 +34,8 @@ const ReturnsPage = lazy(() => import('@/pages/sales/ReturnsPage'));
 const PosPage = lazy(() => import('@/pages/sales/PosPage'));
 
 const ManufacturingPage = lazy(() => import('@/pages/manufacturing/ManufacturingPage'));
+const TechMapsPage = lazy(() => import('@/pages/manufacturing/TechMapsPage'));
+const TechOperationsPage = lazy(() => import('@/pages/manufacturing/TechOperationsPage'));
 
 const CrmDashboardPage = lazy(() => import('@/pages/crm/CrmDashboardPage'));
 const ContactsPage = lazy(() => import('@/pages/crm/ContactsPage'));
@@ -202,6 +204,8 @@ export default function App() {
 
           {/* Производство */}
           <Route path="manufacturing" element={<PermissionGate permission="warehouse:manage"><ManufacturingPage /></PermissionGate>} />
+          <Route path="manufacturing/tech-maps" element={<PermissionGate permission="warehouse:manage"><TechMapsPage /></PermissionGate>} />
+          <Route path="manufacturing/tech-operations" element={<PermissionGate permission="warehouse:manage"><TechOperationsPage /></PermissionGate>} />
 
           {/* CRM */}
           <Route path="crm" element={<PermissionGate permission="crm:read"><CrmDashboardPage /></PermissionGate>} />
