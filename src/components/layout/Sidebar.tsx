@@ -5,7 +5,7 @@ import {
   Users, Handshake, ListTodo, Activity, GitBranch, Wallet, ArrowLeftRight,
   FileBarChart, FileText, BarChart3, Settings, ChevronLeft, ChevronRight,
   FolderTree, Undo2, Truck, ClipboardList, Building2, Columns, Calendar,
-  Shield, Send, Monitor, Cog, FileText, ClipboardCheck,
+  Shield, Send, Monitor, Cog, ClipboardCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/uiStore';
