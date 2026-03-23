@@ -92,7 +92,7 @@ export default function ContactDetailPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <span className={`text-sm font-medium truncate ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
-                              {activity.title}
+                              {(activity as any).subject || activity.title}
                             </span>
                             {cfg && (
                               <Badge variant="outline" className={`shrink-0 text-xs ${cfg.badgeClass}`}>{cfg.label}</Badge>
