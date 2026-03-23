@@ -52,8 +52,9 @@ export default function DealsPage() {
   };
 
   const handleCreate = () => {
-    createDeal.mutate({ title: form.title, amount: form.amount, stageId: stages[0]?.id } as any, {
-      onSuccess: () => { toast.success('Сделка создана'); setShowCreate(false); },
+    createDeal.mutate({ name: form.title, amount: form.amount, pipelineId: pipeline?.id, stageId: stages[0]?.id } as any, {
+      onSuccess: () => { toast.success('Сделка создана'); setShowCreate(false); setForm({ title: '', amount: 0 }); },
+      onError: () => toast.error('Ошибка создания сделки'),
     });
   };
 
