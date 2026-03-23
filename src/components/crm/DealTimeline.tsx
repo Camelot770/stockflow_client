@@ -70,7 +70,7 @@ export function DealTimeline({ activities, comments }: DealTimelineProps) {
             <div className="flex items-center gap-2 mb-1">
               {item.type === 'activity' ? (
                 <>
-                  <span className="text-sm font-medium">{(item.data as Activity).title}</span>
+                  <span className="text-sm font-medium">{(item.data as any).subject || (item.data as Activity).title}</span>
                   {(item.data as Activity).user && (
                     <Avatar className="h-5 w-5">
                       <AvatarFallback className="text-[8px]">

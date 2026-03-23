@@ -143,7 +143,7 @@ export default function CalendarPage() {
       if (activity.scheduledAt) {
         events.push({
           id: `activity-${activity.id}`,
-          title: activity.title,
+          title: (activity as any).subject || activity.title,
           description: activity.description,
           startDate: activity.scheduledAt,
           allDay: false,
