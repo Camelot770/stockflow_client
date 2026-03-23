@@ -9,12 +9,14 @@ import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { useSalesOrder } from '@/hooks/useSales';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/utils';
 
-const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' }> = {
-  draft: { label: 'Черновик', variant: 'secondary' },
-  confirmed: { label: 'Подтверждён', variant: 'default' },
-  shipped: { label: 'Отгружен', variant: 'default' },
-  delivered: { label: 'Доставлен', variant: 'success' },
-  cancelled: { label: 'Отменён', variant: 'destructive' },
+const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' | 'warning' }> = {
+  NEW: { label: 'Новый', variant: 'secondary' },
+  CONFIRMED: { label: 'Подтверждён', variant: 'default' },
+  IN_PROGRESS: { label: 'В работе', variant: 'default' },
+  SHIPPED: { label: 'Отгружен', variant: 'warning' },
+  DELIVERED: { label: 'Доставлен', variant: 'success' },
+  CANCELLED: { label: 'Отменён', variant: 'destructive' },
+  RETURNED: { label: 'Возврат', variant: 'destructive' },
 };
 
 export default function SaleDetailPage() {

@@ -12,12 +12,13 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 import type { SalesOrder } from '@/types';
 
 const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' | 'warning' }> = {
-  draft: { label: 'Черновик', variant: 'secondary' },
-  confirmed: { label: 'Подтверждён', variant: 'default' },
-  shipped: { label: 'Отгружен', variant: 'warning' },
-  delivered: { label: 'Доставлен', variant: 'success' },
-  cancelled: { label: 'Отменён', variant: 'destructive' },
-  returned: { label: 'Возврат', variant: 'destructive' },
+  NEW: { label: 'Новый', variant: 'secondary' },
+  CONFIRMED: { label: 'Подтверждён', variant: 'default' },
+  IN_PROGRESS: { label: 'В работе', variant: 'default' },
+  SHIPPED: { label: 'Отгружен', variant: 'warning' },
+  DELIVERED: { label: 'Доставлен', variant: 'success' },
+  CANCELLED: { label: 'Отменён', variant: 'destructive' },
+  RETURNED: { label: 'Возврат', variant: 'destructive' },
 };
 
 const columns: ColumnDef<SalesOrder, unknown>[] = [
@@ -25,7 +26,7 @@ const columns: ColumnDef<SalesOrder, unknown>[] = [
   { accessorKey: 'customer.name', header: 'Клиент', cell: ({ row }) => row.original.customer?.name || '-' },
   { accessorKey: 'status', header: 'Статус', cell: ({ row }) => { const s = statusMap[row.original.status]; return <Badge variant={s?.variant}>{s?.label}</Badge>; } },
   { accessorKey: 'totalAmount', header: 'Сумма', cell: ({ row }) => formatCurrency(row.original.totalAmount ?? 0) },
-  { id: 'items', header: 'Позиций', cell: ({ row }) => row.original.items?.length || 0 },
+  { id: 'items', header: 'Позиций', cell: ({ row }) => (row.original as any)._count?.items ?? row.original.items?.length ?? 0 },
   { accessorKey: 'createdAt', header: 'Дата', cell: ({ row }) => formatDate(row.original.createdAt) },
 ];
 
