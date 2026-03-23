@@ -3,7 +3,7 @@ import { Plus, Trash2, Play, CheckCircle2, Clock, AlertCircle, Pause } from 'luc
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -12,54 +12,49 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { useProducts } from '@/hooks/useProducts';
 import { useWarehouses } from '@/hooks/useWarehouse';
+import {
+  useTechOperations, useCreateTechOperation, useUpdateTechOperationStatus,
+  useToggleOperationStep, useDeleteTechOperation, useTechMaps,
+} from '@/hooks/useManufacturing';
 import { formatDateTime } from '@/lib/utils';
 import { toast } from 'sonner';
-import type { Product } from '@/types';
+import type { Product, TechOperation } from '@/types';
 
-type OperationStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled';
-
-interface TechOperation {
-  id: string;
-  name: string;
-  description: string;
-  status: OperationStatus;
-  productId: string;
-  productName: string;
-  quantity: number;
-  warehouseId: string;
-  warehouseName: string;
-  assignee: string;
-  priority: 'low' | 'medium' | 'high';
-  plannedDate: string;
-  completedDate?: string;
-  steps: { name: string; done: boolean }[];
-  createdAt: string;
-}
+type OperationStatus = TechOperation['status'];
 
 const statusConfig: Record<OperationStatus, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive'; icon: React.ReactNode }> = {
-  planned: { label: 'Запланировано', variant: 'secondary', icon: <Clock className="h-3 w-3" /> },
-  in_progress: { label: 'В работе', variant: 'default', icon: <Play className="h-3 w-3" /> },
-  completed: { label: 'Завершено', variant: 'success', icon: <CheckCircle2 className="h-3 w-3" /> },
-  cancelled: { label: 'Отменено', variant: 'destructive', icon: <AlertCircle className="h-3 w-3" /> },
+  PLANNED: { label: 'Запланировано', variant: 'secondary', icon: <Clock className="h-3 w-3" /> },
+  IN_PROGRESS: { label: 'В работе', variant: 'default', icon: <Play className="h-3 w-3" /> },
+  COMPLETED: { label: 'Завершено', variant: 'success', icon: <CheckCircle2 className="h-3 w-3" /> },
+  CANCELLED: { label: 'Отменено', variant: 'destructive', icon: <AlertCircle className="h-3 w-3" /> },
 };
 
-const priorityLabels: Record<string, string> = { low: 'Низкий', medium: 'Средний', high: 'Высокий' };
+const priorityLabels: Record<string, string> = { LOW: 'Низкий', MEDIUM: 'Средний', HIGH: 'Высокий' };
 
 export default function TechOperationsPage() {
   const { data: rawProducts } = useProducts({ limit: 500 });
   const products: Product[] = rawProducts?.data || (Array.isArray(rawProducts) ? rawProducts : []);
   const { data: rawWarehouses } = useWarehouses();
   const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
+  const { data: techMapsData } = useTechMaps({ limit: 100 });
+  const techMaps = techMapsData?.data || [];
 
-  const [operations, setOperations] = useState<TechOperation[]>([]);
-  const [showCreate, setShowCreate] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const queryParams = filterStatus !== 'all' ? { status: filterStatus } : {};
+  const { data: operationsData, isLoading } = useTechOperations(queryParams);
+  const operations: TechOperation[] = operationsData?.data || [];
+
+  const createMutation = useCreateTechOperation();
+  const updateStatusMutation = useUpdateTechOperationStatus();
+  const toggleStepMutation = useToggleOperationStep();
+  const deleteMutation = useDeleteTechOperation();
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // Form
   const [name, setName] = useState('');
@@ -68,79 +63,89 @@ export default function TechOperationsPage() {
   const [quantity, setQuantity] = useState(1);
   const [warehouseId, setWarehouseId] = useState('');
   const [assignee, setAssignee] = useState('');
-  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM');
   const [plannedDate, setPlannedDate] = useState('');
+  const [techMapId, setTechMapId] = useState('');
   const [stepInputs, setStepInputs] = useState<string[]>(['']);
 
   const resetForm = () => {
     setName(''); setDescription(''); setProductId('');
     setQuantity(1); setWarehouseId(''); setAssignee('');
-    setPriority('medium'); setPlannedDate(''); setStepInputs(['']);
+    setPriority('MEDIUM'); setPlannedDate(''); setTechMapId('');
+    setStepInputs(['']);
+  };
+
+  const handleSelectTechMap = (mapId: string) => {
+    setTechMapId(mapId);
+    if (mapId) {
+      const map = techMaps.find((m) => m.id === mapId);
+      if (map) {
+        if (!name) setName(`Производство: ${map.name}`);
+        setProductId(map.resultProductId);
+        setQuantity(map.resultQuantity);
+        setStepInputs(map.steps.length > 0 ? map.steps.map((s) => s.name) : ['']);
+      }
+    }
   };
 
   const handleCreate = () => {
     if (!name.trim()) { toast.error('Укажите название операции'); return; }
     if (!productId) { toast.error('Выберите товар'); return; }
+    if (!warehouseId) { toast.error('Выберите склад'); return; }
+    if (!plannedDate) { toast.error('Укажите плановую дату'); return; }
 
-    const product = products.find((p) => p.id === productId);
-    const warehouse = warehouses.find((w: any) => w.id === warehouseId);
-
-    const op: TechOperation = {
-      id: crypto.randomUUID(),
+    const payload = {
       name,
       description,
-      status: 'planned',
+      techMapId: techMapId || undefined,
       productId,
-      productName: product?.name || '',
       quantity,
       warehouseId,
-      warehouseName: warehouse?.name || '',
       assignee,
       priority,
-      plannedDate: plannedDate || new Date().toISOString().split('T')[0],
-      steps: stepInputs.filter((s) => s.trim()).map((s) => ({ name: s, done: false })),
-      createdAt: new Date().toISOString(),
+      plannedDate,
+      steps: stepInputs.filter((s) => s.trim()).map((s) => ({ name: s })),
     };
 
-    setOperations([op, ...operations]);
-    toast.success('Операция создана');
-    setShowCreate(false);
-    resetForm();
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        toast.success('Операция создана');
+        setShowCreate(false);
+        resetForm();
+      },
+      onError: () => toast.error('Ошибка при создании'),
+    });
   };
 
   const updateStatus = (id: string, status: OperationStatus) => {
-    setOperations(operations.map((op) =>
-      op.id === id
-        ? { ...op, status, completedDate: status === 'completed' ? new Date().toISOString() : op.completedDate }
-        : op,
-    ));
-    toast.success(`Статус обновлён: ${statusConfig[status].label}`);
+    updateStatusMutation.mutate({ id, status }, {
+      onSuccess: () => toast.success(`Статус обновлён: ${statusConfig[status].label}`),
+      onError: () => toast.error('Ошибка при обновлении статуса'),
+    });
   };
 
-  const toggleStep = (opId: string, stepIndex: number) => {
-    setOperations(operations.map((op) => {
-      if (op.id !== opId) return op;
-      const newSteps = [...op.steps];
-      newSteps[stepIndex] = { ...newSteps[stepIndex], done: !newSteps[stepIndex].done };
-      return { ...op, steps: newSteps };
-    }));
+  const toggleStep = (opId: string, stepId: string, currentDone: boolean) => {
+    toggleStepMutation.mutate({ id: opId, stepId, done: !currentDone });
   };
 
-  const handleDelete = (id: string) => {
-    if (!confirm('Удалить операцию?')) return;
-    setOperations(operations.filter((op) => op.id !== id));
-    toast.success('Операция удалена');
+  const handleDelete = () => {
+    if (!deleteId) return;
+    deleteMutation.mutate(deleteId, {
+      onSuccess: () => { toast.success('Операция удалена'); setDeleteId(null); },
+      onError: () => toast.error('Ошибка при удалении'),
+    });
   };
 
-  const filtered = filterStatus === 'all' ? operations : operations.filter((op) => op.status === filterStatus);
-
-  // Stats
+  // Stats from all operations (unfiltered would be better, but use what we have)
+  const allOps = operations;
   const stats = {
-    total: operations.length,
-    planned: operations.filter((o) => o.status === 'planned').length,
-    inProgress: operations.filter((o) => o.status === 'in_progress').length,
-    completed: operations.filter((o) => o.status === 'completed').length,
+    total: allOps.length,
+    planned: allOps.filter((o) => o.status === 'PLANNED').length,
+    inProgress: allOps.filter((o) => o.status === 'IN_PROGRESS').length,
+    completed: allOps.filter((o) => o.status === 'COMPLETED').length,
   };
+
+  if (isLoading) return <LoadingSkeleton />;
 
   return (
     <div className="space-y-6">
@@ -168,16 +173,16 @@ export default function TechOperationsPage() {
           <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Все статусы</SelectItem>
-            <SelectItem value="planned">Запланировано</SelectItem>
-            <SelectItem value="in_progress">В работе</SelectItem>
-            <SelectItem value="completed">Завершено</SelectItem>
-            <SelectItem value="cancelled">Отменено</SelectItem>
+            <SelectItem value="PLANNED">Запланировано</SelectItem>
+            <SelectItem value="IN_PROGRESS">В работе</SelectItem>
+            <SelectItem value="COMPLETED">Завершено</SelectItem>
+            <SelectItem value="CANCELLED">Отменено</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* Operations list */}
-      {filtered.length === 0 ? (
+      {operations.length === 0 ? (
         <Card>
           <CardContent className="pt-6">
             <EmptyState
@@ -190,7 +195,7 @@ export default function TechOperationsPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {filtered.map((op) => {
+          {operations.map((op) => {
             const cfg = statusConfig[op.status];
             const stepsProgress = op.steps.length > 0
               ? `${op.steps.filter((s) => s.done).length}/${op.steps.length}`
@@ -209,8 +214,8 @@ export default function TechOperationsPage() {
                         <Badge variant="outline">{priorityLabels[op.priority]}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Товар: {op.productName} x{op.quantity}
-                        {op.warehouseName && ` | Склад: ${op.warehouseName}`}
+                        Товар: {op.product?.name || ''} x{op.quantity}
+                        {op.warehouse?.name && ` | Склад: ${op.warehouse.name}`}
                         {op.assignee && ` | Исполнитель: ${op.assignee}`}
                       </p>
                       {op.description && <p className="text-sm text-muted-foreground mt-1">{op.description}</p>}
@@ -218,44 +223,59 @@ export default function TechOperationsPage() {
                       {/* Steps checklist */}
                       {op.steps.length > 0 && (
                         <div className="mt-3 space-y-1">
-                          <p className="text-xs font-medium text-muted-foreground">Этапы ({stepsProgress}):</p>
+                          <p className="text-xs font-medium text-muted-foreground">
+                            Этапы ({stepsProgress})
+                            {op.currentStep < op.steps.length && (
+                              <span className="ml-2 text-primary font-semibold">
+                                — Текущий: {op.steps[op.currentStep]?.name}
+                              </span>
+                            )}
+                            {op.currentStep >= op.steps.length && op.steps.length > 0 && (
+                              <span className="ml-2 text-green-500 font-semibold">— Все этапы завершены</span>
+                            )}
+                          </p>
                           {op.steps.map((step, si) => (
-                            <label key={si} className="flex items-center gap-2 text-sm cursor-pointer">
+                            <label key={step.id} className={`flex items-center gap-2 text-sm cursor-pointer px-2 py-1 rounded ${si === op.currentStep && !step.done ? 'bg-primary/10 border border-primary/20' : ''}`}>
                               <input
                                 type="checkbox"
                                 checked={step.done}
-                                onChange={() => toggleStep(op.id, si)}
+                                onChange={() => toggleStep(op.id, step.id, step.done)}
                                 className="rounded"
                               />
-                              <span className={step.done ? 'line-through text-muted-foreground' : ''}>{step.name}</span>
+                              <span className={step.done ? 'line-through text-muted-foreground' : si === op.currentStep ? 'font-medium text-primary' : ''}>
+                                {step.name}
+                              </span>
+                              {si === op.currentStep && !step.done && (
+                                <Badge variant="default" className="text-[10px] px-1.5 py-0">текущий</Badge>
+                              )}
                             </label>
                           ))}
                         </div>
                       )}
 
                       <p className="text-xs text-muted-foreground mt-2">
-                        Дата: {op.plannedDate}
+                        Дата: {op.plannedDate ? new Date(op.plannedDate).toLocaleDateString('ru-RU') : ''}
                         {op.completedDate && ` | Завершено: ${formatDateTime(op.completedDate)}`}
                       </p>
                     </div>
 
                     <div className="flex items-center gap-1">
-                      {op.status === 'planned' && (
-                        <Button variant="outline" size="sm" onClick={() => updateStatus(op.id, 'in_progress')}>
+                      {op.status === 'PLANNED' && (
+                        <Button variant="outline" size="sm" onClick={() => updateStatus(op.id, 'IN_PROGRESS')}>
                           <Play className="h-3 w-3 mr-1" />Начать
                         </Button>
                       )}
-                      {op.status === 'in_progress' && (
+                      {op.status === 'IN_PROGRESS' && (
                         <>
-                          <Button variant="outline" size="sm" onClick={() => updateStatus(op.id, 'completed')}>
+                          <Button variant="outline" size="sm" onClick={() => updateStatus(op.id, 'COMPLETED')}>
                             <CheckCircle2 className="h-3 w-3 mr-1" />Завершить
                           </Button>
-                          <Button variant="outline" size="sm" onClick={() => updateStatus(op.id, 'cancelled')}>
+                          <Button variant="outline" size="sm" onClick={() => updateStatus(op.id, 'CANCELLED')}>
                             <Pause className="h-3 w-3 mr-1" />Отменить
                           </Button>
                         </>
                       )}
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(op.id)}>
+                      <Button variant="ghost" size="icon" onClick={() => setDeleteId(op.id)}>
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
                     </div>
@@ -274,6 +294,21 @@ export default function TechOperationsPage() {
             <DialogTitle>Новая технологическая операция</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Tech Map Selection */}
+            {techMaps.length > 0 && (
+              <div className="space-y-2">
+                <Label>Технологическая карта (опционально)</Label>
+                <Select value={techMapId} onValueChange={handleSelectTechMap}>
+                  <SelectTrigger><SelectValue placeholder="Выберите карту для авто-заполнения" /></SelectTrigger>
+                  <SelectContent>
+                    {techMaps.filter((m) => m.isActive).map((m) => (
+                      <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Название операции *</Label>
@@ -284,9 +319,9 @@ export default function TechOperationsPage() {
                 <Select value={priority} onValueChange={(v) => setPriority(v as any)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Низкий</SelectItem>
-                    <SelectItem value="medium">Средний</SelectItem>
-                    <SelectItem value="high">Высокий</SelectItem>
+                    <SelectItem value="LOW">Низкий</SelectItem>
+                    <SelectItem value="MEDIUM">Средний</SelectItem>
+                    <SelectItem value="HIGH">Высокий</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -312,7 +347,7 @@ export default function TechOperationsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Склад</Label>
+                <Label>Склад *</Label>
                 <Select value={warehouseId} onValueChange={setWarehouseId}>
                   <SelectTrigger><SelectValue placeholder="Выберите склад" /></SelectTrigger>
                   <SelectContent>
@@ -323,7 +358,7 @@ export default function TechOperationsPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Плановая дата</Label>
+                <Label>Плановая дата *</Label>
                 <Input type="date" value={plannedDate} onChange={(e) => setPlannedDate(e.target.value)} />
               </div>
             </div>
@@ -367,7 +402,25 @@ export default function TechOperationsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)}>Отмена</Button>
-            <Button onClick={handleCreate} disabled={!name || !productId}>Создать</Button>
+            <Button onClick={handleCreate} disabled={!name || !productId || !warehouseId || !plannedDate || createMutation.isPending}>
+              {createMutation.isPending ? 'Создание...' : 'Создать'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Удалить операцию?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">Это действие нельзя отменить. Операция будет удалена безвозвратно.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>Отмена</Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
+              {deleteMutation.isPending ? 'Удаление...' : 'Удалить'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

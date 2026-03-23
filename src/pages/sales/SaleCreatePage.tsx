@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCreateSalesOrder } from '@/hooks/useSales';
 import { useWarehouses } from '@/hooks/useWarehouse';
 import { useCustomers } from '@/hooks/useCustomers';
+import { useProducts } from '@/hooks/useProducts';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -21,7 +22,9 @@ export default function SaleCreatePage() {
   const { data: rawWarehouses } = useWarehouses();
   const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
   const { data: customersData } = useCustomers();
+  const { data: productsData } = useProducts({ limit: 100 });
   const createOrder = useCreateSalesOrder();
+  const products = productsData?.data || [];
 
   const [customerId, setCustomerId] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
@@ -36,6 +39,10 @@ export default function SaleCreatePage() {
   const updateItem = (i: number, field: keyof OrderItem, value: string | number) => {
     const updated = [...items];
     (updated[i] as Record<string, unknown>)[field] = value;
+    if (field === 'productId') {
+      const product = products.find((p) => p.id === value);
+      if (product) updated[i].price = product.sellingPrice;
+    }
     setItems(updated);
   };
 
@@ -88,7 +95,7 @@ export default function SaleCreatePage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID товара</TableHead>
+                <TableHead>Товар</TableHead>
                 <TableHead>Кол-во</TableHead>
                 <TableHead>Цена</TableHead>
                 <TableHead>Скидка %</TableHead>
@@ -99,7 +106,14 @@ export default function SaleCreatePage() {
             <TableBody>
               {items.map((item, i) => (
                 <TableRow key={i}>
-                  <TableCell><Input value={item.productId} onChange={(e) => updateItem(i, 'productId', e.target.value)} /></TableCell>
+                  <TableCell>
+                    <Select value={item.productId} onValueChange={(v) => updateItem(i, 'productId', v)}>
+                      <SelectTrigger className="w-[200px]"><SelectValue placeholder="Выберите товар" /></SelectTrigger>
+                      <SelectContent>
+                        {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name} ({p.sku})</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
                   <TableCell><Input type="number" value={item.quantity} onChange={(e) => updateItem(i, 'quantity', Number(e.target.value))} className="w-20" /></TableCell>
                   <TableCell><Input type="number" value={item.price} onChange={(e) => updateItem(i, 'price', Number(e.target.value))} className="w-28" /></TableCell>
                   <TableCell><Input type="number" value={item.discount} onChange={(e) => updateItem(i, 'discount', Number(e.target.value))} className="w-20" /></TableCell>
