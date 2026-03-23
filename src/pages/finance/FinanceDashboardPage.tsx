@@ -47,7 +47,7 @@ export default function FinanceDashboardPage() {
                     <Wallet className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">{acc.name}</p>
-                      <p className="text-xs text-muted-foreground">{acc.type === 'bank' ? 'Банковский' : acc.type === 'cash' ? 'Наличные' : 'Карта'}</p>
+                      <p className="text-xs text-muted-foreground">{{ BANK: 'Банковский', bank: 'Банковский', CASH: 'Наличные', cash: 'Наличные', CARD: 'Карта', card: 'Карта' }[acc.type] || acc.type}</p>
                     </div>
                   </div>
                   <p className="text-lg font-bold">{formatCurrency(parseFloat(acc.balance) || 0)}</p>
