@@ -20,8 +20,8 @@ export default function AccountsPage() {
   const [form, setForm] = useState({ name: '', type: 'bank' as string, currency: 'RUB' });
 
   const handleCreate = () => {
-    createAccount.mutate(form as any, {
-      onSuccess: () => { toast.success('Счёт создан'); setShowCreate(false); },
+    createAccount.mutate({ ...form, type: form.type.toUpperCase() } as any, {
+      onSuccess: () => { toast.success('Счёт создан'); setShowCreate(false); setForm({ name: '', type: 'bank', currency: 'RUB' }); },
     });
   };
 
