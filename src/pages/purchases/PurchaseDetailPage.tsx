@@ -10,11 +10,12 @@ import { usePurchaseOrder } from '@/hooks/usePurchases';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/utils';
 
 const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' | 'warning' }> = {
-  draft: { label: 'Черновик', variant: 'secondary' },
-  ordered: { label: 'Заказано', variant: 'default' },
-  partial: { label: 'Частично', variant: 'warning' },
-  received: { label: 'Получено', variant: 'success' },
-  cancelled: { label: 'Отменено', variant: 'destructive' },
+  DRAFT: { label: 'Черновик', variant: 'secondary' },
+  SENT: { label: 'Отправлен', variant: 'default' },
+  CONFIRMED: { label: 'Подтверждён', variant: 'default' },
+  PARTIALLY_RECEIVED: { label: 'Частично', variant: 'warning' },
+  RECEIVED: { label: 'Получено', variant: 'success' },
+  CANCELLED: { label: 'Отменено', variant: 'destructive' },
 };
 
 export default function PurchaseDetailPage() {

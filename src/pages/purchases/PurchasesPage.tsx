@@ -10,11 +10,12 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 import type { PurchaseOrder } from '@/types';
 
 const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' | 'warning' }> = {
-  draft: { label: 'Черновик', variant: 'secondary' },
-  ordered: { label: 'Заказано', variant: 'default' },
-  partial: { label: 'Частично', variant: 'warning' },
-  received: { label: 'Получено', variant: 'success' },
-  cancelled: { label: 'Отменено', variant: 'destructive' },
+  DRAFT: { label: 'Черновик', variant: 'secondary' },
+  SENT: { label: 'Отправлен', variant: 'default' },
+  CONFIRMED: { label: 'Подтверждён', variant: 'default' },
+  PARTIALLY_RECEIVED: { label: 'Частично', variant: 'warning' },
+  RECEIVED: { label: 'Получено', variant: 'success' },
+  CANCELLED: { label: 'Отменено', variant: 'destructive' },
 };
 
 const columns: ColumnDef<PurchaseOrder, unknown>[] = [
@@ -40,7 +41,7 @@ const columns: ColumnDef<PurchaseOrder, unknown>[] = [
   {
     id: 'items',
     header: 'Позиций',
-    cell: ({ row }) => row.original.items?.length || 0,
+    cell: ({ row }) => (row.original as any)._count?.items ?? row.original.items?.length ?? 0,
   },
   {
     accessorKey: 'createdAt',

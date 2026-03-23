@@ -6,11 +6,12 @@ import { useReturns } from '@/hooks/useSales';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { Return } from '@/types';
 
-const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' }> = {
-  pending: { label: 'Ожидает', variant: 'secondary' },
-  approved: { label: 'Одобрен', variant: 'default' },
-  completed: { label: 'Выполнен', variant: 'success' },
-  rejected: { label: 'Отклонён', variant: 'destructive' },
+const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' | 'warning' }> = {
+  NEW: { label: 'Новый', variant: 'secondary' },
+  APPROVED: { label: 'Одобрен', variant: 'default' },
+  PROCESSING: { label: 'В обработке', variant: 'warning' },
+  COMPLETED: { label: 'Выполнен', variant: 'success' },
+  REJECTED: { label: 'Отклонён', variant: 'destructive' },
 };
 
 const columns: ColumnDef<Return, unknown>[] = [
