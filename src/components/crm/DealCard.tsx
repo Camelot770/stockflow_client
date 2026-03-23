@@ -40,7 +40,7 @@ export function DealCard({ deal, onClick }: DealCardProps) {
           <GripVertical className="h-4 w-4" />
         </button>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">{deal.title}</p>
+          <p className="text-sm font-medium truncate">{deal.name || deal.title}</p>
           <p className="text-lg font-bold text-primary mt-1">{formatCurrency(deal.amount ?? 0)}</p>
           {deal.customer && (
             <div className="flex items-center gap-1.5 mt-2">

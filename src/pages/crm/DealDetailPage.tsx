@@ -37,7 +37,7 @@ export default function DealDetailPage() {
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/crm/deals')}><ArrowLeft className="h-4 w-4" /></Button>
         <div>
-          <h1 className="text-2xl font-bold">{deal.title}</h1>
+          <h1 className="text-2xl font-bold">{deal.name || deal.title}</h1>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant={(deal.status || '').toUpperCase() === 'WON' ? 'success' : (deal.status || '').toUpperCase() === 'LOST' ? 'destructive' : 'secondary'}>
               {(deal.status || '').toUpperCase() === 'WON' ? 'Выиграна' : (deal.status || '').toUpperCase() === 'LOST' ? 'Проиграна' : 'Открыта'}

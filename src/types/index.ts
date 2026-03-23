@@ -299,6 +299,7 @@ export interface PipelineStage {
 /** Сделка */
 export interface Deal {
   id: string;
+  name: string;
   title: string;
   amount: number;
   pipelineId: string;
@@ -325,6 +326,7 @@ export interface Deal {
 export interface Activity {
   id: string;
   type: 'call' | 'meeting' | 'email' | 'note' | 'task';
+  subject: string;
   title: string;
   description?: string;
   dealId?: string;

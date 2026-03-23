@@ -21,6 +21,11 @@ const typeConfig: Record<string, { label: string; icon: React.ElementType; color
   email:   { label: 'Email',   icon: Mail,          color: 'text-green-400',  badgeClass: 'bg-green-500/15 text-green-400 border-green-500/20' },
   note:    { label: 'Заметка', icon: FileText,      color: 'text-yellow-400', badgeClass: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/20' },
   task:    { label: 'Задача',  icon: CheckCircle2,  color: 'text-orange-400', badgeClass: 'bg-orange-500/15 text-orange-400 border-orange-500/20' },
+  CALL:    { label: 'Звонок',  icon: Phone,        color: 'text-blue-400',   badgeClass: 'bg-blue-500/15 text-blue-400 border-blue-500/20' },
+  MEETING: { label: 'Встреча', icon: Calendar,      color: 'text-purple-400', badgeClass: 'bg-purple-500/15 text-purple-400 border-purple-500/20' },
+  EMAIL:   { label: 'Email',   icon: Mail,          color: 'text-green-400',  badgeClass: 'bg-green-500/15 text-green-400 border-green-500/20' },
+  NOTE:    { label: 'Заметка', icon: FileText,      color: 'text-yellow-400', badgeClass: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/20' },
+  TASK:    { label: 'Задача',  icon: CheckCircle2,  color: 'text-orange-400', badgeClass: 'bg-orange-500/15 text-orange-400 border-orange-500/20' },
 };
 
 const typeSummaryOrder = ['call', 'meeting', 'email', 'note', 'task'] as const;
@@ -43,7 +48,8 @@ export default function ActivitiesPage() {
     const counts: Record<string, number> = {};
     for (const t of typeSummaryOrder) counts[t] = 0;
     for (const a of activities) {
-      counts[a.type] = (counts[a.type] || 0) + 1;
+      const t = a.type?.toLowerCase() || a.type;
+      counts[t] = (counts[t] || 0) + 1;
     }
     return counts;
   }, [activities]);
@@ -65,11 +71,12 @@ export default function ActivitiesPage() {
   };
 
   const handleCreate = () => {
-    const payload: Partial<Activity> = {
-      type: form.type as Activity['type'],
-      title: form.title,
+    const payload: any = {
+      type: form.type.toUpperCase(),
+      subject: form.title,
       description: form.description || undefined,
       scheduledAt: form.scheduledAt || undefined,
+      duration: form.duration ? parseInt(form.duration) : undefined,
     };
     createActivity.mutate(payload, {
       onSuccess: () => {
@@ -123,7 +130,7 @@ export default function ActivitiesPage() {
       header: 'Тема',
       cell: ({ row }) => (
         <span className={row.original.isCompleted || row.original.completedAt ? 'line-through text-muted-foreground' : ''}>
-          {row.original.title}
+          {row.original.subject || row.original.title}
         </span>
       ),
     },
@@ -143,7 +150,7 @@ export default function ActivitiesPage() {
         const a = row.original;
         const parts: string[] = [];
         if ((a as any).customer?.name) parts.push((a as any).customer.name);
-        if ((a as any).deal?.title) parts.push((a as any).deal.title);
+        if ((a as any).deal?.name || (a as any).deal?.title) parts.push((a as any).deal.name || (a as any).deal.title);
         return parts.length > 0 ? parts.join(' / ') : '-';
       },
     },
