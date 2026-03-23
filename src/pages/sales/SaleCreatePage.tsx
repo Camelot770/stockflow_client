@@ -48,7 +48,11 @@ export default function SaleCreatePage() {
 
   const handleSubmit = () => {
     createOrder.mutate(
-      { customerId: customerId || undefined, warehouseId, note, items: items.map((i) => ({ ...i, amount: i.quantity * i.price * (1 - i.discount / 100) })) } as any,
+      {
+        customerId: customerId || undefined,
+        warehouseId: warehouseId || undefined,
+        items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, price: i.price, discount: i.discount })),
+      } as any,
       {
         onSuccess: () => { toast.success('Продажа создана'); navigate('/sales'); },
         onError: () => toast.error('Ошибка'),
