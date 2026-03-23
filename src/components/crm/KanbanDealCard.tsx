@@ -57,7 +57,7 @@ export function KanbanDealCard({ deal, onClick, isOverlay }: KanbanDealCardProps
           <GripVertical className="h-4 w-4" />
         </button>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate text-foreground">{deal.title}</p>
+          <p className="text-sm font-medium truncate text-foreground">{deal.name || deal.title}</p>
           <p className="text-lg font-bold text-primary mt-1">
             {formatCurrency(deal.amount ?? 0)}
           </p>

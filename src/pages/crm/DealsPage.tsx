@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 import type { Deal, PipelineStage } from '@/types';
 
 const columns: ColumnDef<Deal, unknown>[] = [
-  { accessorKey: 'title', header: 'Сделка' },
+  { accessorKey: 'name', header: 'Сделка', cell: ({ row }) => row.original.name || row.original.title || '-' },
   { accessorKey: 'customer.name', header: 'Клиент', cell: ({ row }) => row.original.customer?.name || '-' },
   { accessorKey: 'amount', header: 'Сумма', cell: ({ row }) => formatCurrency(row.original.amount ?? 0) },
   { accessorKey: 'stage.name', header: 'Стадия', cell: ({ row }) => <Badge style={row.original.stage?.color ? { backgroundColor: row.original.stage.color + '20', color: row.original.stage.color } : undefined}>{row.original.stage?.name || '-'}</Badge> },
