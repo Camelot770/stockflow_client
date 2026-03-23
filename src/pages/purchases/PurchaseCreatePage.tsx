@@ -51,11 +51,13 @@ export default function PurchaseCreatePage() {
   };
 
   const handleSubmit = () => {
+    const number = `PO-${Date.now()}`;
     createOrder.mutate(
       {
-        supplierId, warehouseId, note,
+        supplierId,
+        number,
         expectedDate: expectedDate || undefined,
-        items: items.map((i) => ({ ...i, receivedQuantity: 0, amount: i.quantity * i.price })),
+        items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, price: i.price })),
       } as any,
       {
         onSuccess: () => { toast.success('Закупка создана'); navigate('/purchases'); },
