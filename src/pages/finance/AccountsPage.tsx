@@ -41,7 +41,7 @@ export default function AccountsPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 rounded-lg bg-primary/10"><Wallet className="h-5 w-5 text-primary" /></div>
-                  <div><p className="font-medium">{acc.name}</p><p className="text-xs text-muted-foreground">{acc.type === 'bank' ? 'Банковский' : acc.type === 'cash' ? 'Наличные' : 'Карта'}</p></div>
+                  <div><p className="font-medium">{acc.name}</p><p className="text-xs text-muted-foreground">{{ BANK: 'Банковский', bank: 'Банковский', CASH: 'Наличные', cash: 'Наличные', CARD: 'Карта', card: 'Карта' }[acc.type] || acc.type}</p></div>
                   <Badge variant={acc.isActive ? 'success' : 'secondary'} className="ml-auto">{acc.isActive ? 'Активен' : 'Неактивен'}</Badge>
                 </div>
                 <p className="text-2xl font-bold">{formatCurrency(acc.balance ?? 0)}</p>
