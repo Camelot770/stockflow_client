@@ -510,6 +510,73 @@ export interface AnalyticsData {
   }[];
 }
 
+/** Компонент технологической карты */
+export interface TechMapComponent {
+  id: string;
+  productId: string;
+  product?: { id: string; name: string; sku: string };
+  quantity: number;
+  unit: string;
+}
+
+/** Этап технологической карты */
+export interface TechMapStep {
+  id: string;
+  name: string;
+  description: string;
+  duration: number;
+  deadline: number;
+  order: number;
+}
+
+/** Технологическая карта */
+export interface TechMap {
+  id: string;
+  name: string;
+  description: string;
+  resultProductId: string;
+  resultProduct?: { id: string; name: string; sku: string };
+  resultQuantity: number;
+  components: TechMapComponent[];
+  steps: TechMapStep[];
+  isActive: boolean;
+  _count?: { operations: number };
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Этап технологической операции */
+export interface TechOperationStep {
+  id: string;
+  name: string;
+  done: boolean;
+  deadline?: number;
+  order: number;
+}
+
+/** Технологическая операция */
+export interface TechOperation {
+  id: string;
+  name: string;
+  description: string;
+  status: 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  techMapId?: string;
+  techMap?: { id: string; name: string };
+  productId: string;
+  product?: { id: string; name: string; sku: string };
+  quantity: number;
+  warehouseId: string;
+  warehouse?: { id: string; name: string };
+  assignee: string;
+  currentStep: number;
+  plannedDate: string;
+  completedDate?: string;
+  steps: TechOperationStep[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DashboardStats {
   revenue: number;
   revenueTrend: number;

@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useCreatePurchaseOrder, useSuppliers } from '@/hooks/usePurchases';
 import { useWarehouses } from '@/hooks/useWarehouse';
+import { useProducts } from '@/hooks/useProducts';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -24,8 +25,10 @@ export default function PurchaseCreatePage() {
   const { data: suppliersData } = useSuppliers();
   const { data: rawWarehouses } = useWarehouses();
   const warehouses = Array.isArray(rawWarehouses) ? rawWarehouses : Array.isArray((rawWarehouses as any)?.data) ? (rawWarehouses as any).data : [];
+  const { data: productsData } = useProducts({ limit: 100 });
   const createOrder = useCreatePurchaseOrder();
 
+  const products = productsData?.data || [];
   const [supplierId, setSupplierId] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
   const [note, setNote] = useState('');
@@ -40,6 +43,10 @@ export default function PurchaseCreatePage() {
   const updateItem = (i: number, field: keyof OrderItem, value: string | number) => {
     const updated = [...items];
     (updated[i] as Record<string, unknown>)[field] = value;
+    if (field === 'productId') {
+      const product = products.find((p) => p.id === value);
+      if (product) updated[i].price = product.purchasePrice;
+    }
     setItems(updated);
   };
 
@@ -112,7 +119,7 @@ export default function PurchaseCreatePage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID товара</TableHead>
+                <TableHead>Товар</TableHead>
                 <TableHead>Кол-во</TableHead>
                 <TableHead>Цена</TableHead>
                 <TableHead>Сумма</TableHead>
@@ -122,7 +129,14 @@ export default function PurchaseCreatePage() {
             <TableBody>
               {items.map((item, i) => (
                 <TableRow key={i}>
-                  <TableCell><Input value={item.productId} onChange={(e) => updateItem(i, 'productId', e.target.value)} /></TableCell>
+                  <TableCell>
+                    <Select value={item.productId} onValueChange={(v) => updateItem(i, 'productId', v)}>
+                      <SelectTrigger className="w-[200px]"><SelectValue placeholder="Выберите товар" /></SelectTrigger>
+                      <SelectContent>
+                        {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name} ({p.sku})</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
                   <TableCell><Input type="number" value={item.quantity} onChange={(e) => updateItem(i, 'quantity', Number(e.target.value))} className="w-24" /></TableCell>
                   <TableCell><Input type="number" value={item.price} onChange={(e) => updateItem(i, 'price', Number(e.target.value))} className="w-32" /></TableCell>
                   <TableCell>{formatCurrency(item.quantity * item.price)}</TableCell>
