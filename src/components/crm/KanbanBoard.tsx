@@ -21,7 +21,7 @@ export function KanbanBoard({ stages, deals, onDealMove, onDealClick }: KanbanBo
 
   const safeStages = stages || [];
   const safeDeals = deals || [];
-  const sortedStages = [...safeStages].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const sortedStages = [...safeStages].sort((a, b) => (a.sortOrder ?? a.order ?? 0) - (b.sortOrder ?? b.order ?? 0));
 
   const handleDragStart = (event: DragStartEvent) => {
     const deal = safeDeals.find((d) => d.id === event.active.id);

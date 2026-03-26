@@ -71,7 +71,7 @@ export default function DealsKanbanPage() {
   const stages = useMemo(
     () =>
       selectedPipeline?.stages
-        ? [...selectedPipeline.stages].sort((a, b) => a.order - b.order)
+        ? [...selectedPipeline.stages].sort((a, b) => (a.sortOrder ?? a.order ?? 0) - (b.sortOrder ?? b.order ?? 0))
         : [],
     [selectedPipeline],
   );
