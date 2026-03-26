@@ -21,8 +21,8 @@ const columns: ColumnDef<Customer, unknown>[] = [
   { accessorKey: 'phone', header: 'Телефон', cell: ({ row }) => row.original.phone || '-' },
   { accessorKey: 'email', header: 'Email', cell: ({ row }) => row.original.email || '-' },
   { accessorKey: 'type', header: 'Тип', cell: ({ row }) => <Badge variant="secondary">{row.original.type === 'LEGAL_ENTITY' ? 'Компания' : 'Физлицо'}</Badge> },
-  { accessorKey: 'totalOrders', header: 'Заказы', cell: ({ row }) => formatNumber(row.original.totalOrders ?? 0) },
-  { accessorKey: 'totalRevenue', header: 'Выручка', cell: ({ row }) => formatCurrency(row.original.totalRevenue ?? 0) },
+  { accessorKey: 'totalOrders', header: 'Заказы', cell: ({ row }) => formatNumber((row.original as any)._count?.salesOrders ?? row.original.totalOrders ?? 0) },
+  { accessorKey: 'totalRevenue', header: 'Выручка', cell: ({ row }) => formatCurrency(Number((row.original as any).totalPurchases) || row.original.totalRevenue || 0) },
 ];
 
 export default function ContactsPage() {

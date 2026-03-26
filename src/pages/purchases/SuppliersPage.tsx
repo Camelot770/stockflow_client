@@ -19,7 +19,7 @@ const columns: ColumnDef<Supplier, unknown>[] = [
   {
     accessorKey: 'isActive',
     header: 'Статус',
-    cell: ({ row }) => <Badge variant={row.original.isActive ? 'success' : 'secondary'}>{row.original.isActive ? 'Активен' : 'Неактивен'}</Badge>,
+    cell: ({ row }) => <Badge variant={row.original.isActive !== false ? 'success' : 'secondary'}>{row.original.isActive !== false ? 'Активен' : 'Неактивен'}</Badge>,
   },
 ];
 
