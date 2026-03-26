@@ -29,7 +29,7 @@ export function TopCustomersWidget({ data }: TopCustomersWidgetProps) {
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm truncate">{item.customer.name}</p>
-              <p className="text-xs text-muted-foreground">{formatNumber(item.orders)} заказов</p>
+              <p className="text-xs text-muted-foreground">{formatNumber(item.orders)} {item.orders === 1 ? 'заказ' : item.orders >= 2 && item.orders <= 4 ? 'заказа' : 'заказов'}</p>
             </div>
             <span className="text-sm font-medium">{formatCurrency(item.revenue)}</span>
           </div>
